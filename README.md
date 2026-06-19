@@ -8,7 +8,7 @@ This repository is intentionally release-only. It contains installer assets, upd
 
 Latest Windows installer:
 
-https://github.com/toxicmachinee-droid/bnb-bid-ladder-releases/releases/latest/download/BNB.Bid.Ladder.Setup.0.1.1.exe
+https://github.com/toxicmachinee-droid/bnb-bid-ladder-releases/releases/latest/download/BNB.Bid.Ladder.Setup.0.1.3.exe
 
 Latest release page:
 
@@ -21,7 +21,7 @@ https://github.com/toxicmachinee-droid/bnb-bid-ladder-releases/releases/latest/d
 Current Windows installer SHA256:
 
 ```text
-888306c01a5ba3d9e295c7083cfdce0ec18100b5bd85b825dddcb6f725a27328
+8a718affb2aa9601171a5ecbe18d33db3113ab7befb4e995865bbcd6e10d75cf
 ```
 
 ## Wallet And Private Key Safety
@@ -55,7 +55,7 @@ The server must not need:
 On Windows PowerShell:
 
 ```powershell
-Get-FileHash .\BNB.Bid.Ladder.Setup.0.1.1.exe -Algorithm SHA256
+Get-FileHash .\BNB.Bid.Ladder.Setup.0.1.3.exe -Algorithm SHA256
 ```
 
 The hash should match the SHA256 shown above or the digest on the GitHub release asset.
