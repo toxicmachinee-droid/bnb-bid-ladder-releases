@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-19T17:18:32.053Z",
-  "sourceCommit": "64864f79dcea886fea80fe4091ea6d20c148ac95",
-  "sourceBranch": "codex/thin-client-license-defense",
-  "fileCount": 109,
+  "generatedAt": "2026-06-19T23:26:50.280Z",
+  "sourceCommit": "386b7489f7bc054309ea1e8f4559f65fea23a013",
+  "sourceBranch": "main",
+  "fileCount": 110,
   "files": [
     {
       "path": ".gitignore",
-      "bytes": 1408,
-      "sha256": "6cc1999cc0ee4410be02f02813a3c5a6ae822d8305bd68c23bb2d3010256449d"
+      "bytes": 1411,
+      "sha256": "9a93ea186d499600d72a9d1584b3ce44af8148e17d64a09d2d75a549f2b0c29d"
     },
     {
       "path": "README.md",
-      "bytes": 6686,
-      "sha256": "3387d7298c22efc28928535a45222484640267b5127f871abbd8a43146c8f80b"
+      "bytes": 6783,
+      "sha256": "476593ae5f61c4b358c2a06e5c63ad5bc884f2d5482aebd559b809360b10f2f7"
     },
     {
       "path": "SECURITY_RULES.md",
-      "bytes": 7798,
-      "sha256": "62dc0595f9be2656582ef0910beafecb80122cb5d8fce0b6a18e2803c0430e82"
+      "bytes": 7916,
+      "sha256": "916e8d8dc4c06e96740325a98c9aa68f6505e4be5e8888c6d9d427f997fa5a4a"
     },
     {
       "path": "config/canary_limits.example.json",
@@ -177,8 +177,8 @@
     },
     {
       "path": "lib/licensing/client_session.cjs",
-      "bytes": 4849,
-      "sha256": "5de1d8e9aca3679270be74a82c16880d1b28e44484e6a1553d36f06b800cb7b0"
+      "bytes": 4878,
+      "sha256": "93d93bef3fd81f0ffbc8f333b2a86ed1161f3dc1a0576379d6f019e83e7c4871"
     },
     {
       "path": "lib/licensing/device_identity.cjs",
@@ -192,8 +192,8 @@
     },
     {
       "path": "lib/licensing/operator_gate.cjs",
-      "bytes": 11456,
-      "sha256": "84b9c2ed2fef51f804e9bcaf5ef305358501c8bb4e30e8fec832df77d1cfa0cb"
+      "bytes": 11468,
+      "sha256": "f28f60ee60391b9b7d18e0594e2f6e9eeeadf84a2efa0a797d658e3ac0e744eb"
     },
     {
       "path": "lib/licensing/remote_intent_policy.cjs",
@@ -202,8 +202,8 @@
     },
     {
       "path": "lib/licensing/remote_plan.cjs",
-      "bytes": 13331,
-      "sha256": "0784b5ccaf8642c823aa2b5df503ec0684de6b59f7ed1e41a9c675cbdffdea04"
+      "bytes": 13377,
+      "sha256": "283fa5c577630e5d4918a664b2a4d3961f680a0538e43a8d0caf11b382f76dec"
     },
     {
       "path": "lib/licensing/remote_plan_execution.cjs",
@@ -482,23 +482,28 @@
     },
     {
       "path": "scripts/audit_public_private_split.cjs",
-      "bytes": 14508,
-      "sha256": "df506ca959b95ef3be09d8de0b3477e23fc7f2afd6a683f4438efa06fed833ec"
+      "bytes": 14694,
+      "sha256": "0d32c1d8c44ab7ada5a3354aac59ddbafa80731ece6f51b55ecaa104db6f31b5"
     },
     {
       "path": "scripts/audit_public_release_boundary.cjs",
-      "bytes": 901,
-      "sha256": "27bb758b5400784a14685d799cd538d2efe70f4c8ef8b0d87b7e20595daffc23"
+      "bytes": 940,
+      "sha256": "9ccf93dc6e1e2ccb7da0a9b4a07a579c0266a28bc0a04462d10e183e388afdc4"
     },
     {
       "path": "scripts/export_public_release.cjs",
-      "bytes": 4011,
-      "sha256": "c39b9f6ac5de920722772dd230fe09bad36c21fe3f70ff22b19ba0788aa7cfc9"
+      "bytes": 4060,
+      "sha256": "b122b32ba1cbd401aeeeb6d8da92075ce35d82270e1ebdc1416cc5e72ea0f9de"
     },
     {
       "path": "scripts/verify_public_release_manifest.cjs",
-      "bytes": 4884,
-      "sha256": "e2e21af016a20f457baffc51d6f8c1d47f1d8dfcefb39544579945bb7814d2cd"
+      "bytes": 5046,
+      "sha256": "c4cf2d03223cfa34f0f21772aab4812ceb1ed046c7f5bd9490618654d4db938e"
+    },
+    {
+      "path": "scripts/verify_release_artifacts.cjs",
+      "bytes": 3679,
+      "sha256": "2eb235492568c2bf99278c671b86deacea74061b76a164fece855289eae904ae"
     },
     {
       "path": "ui/app-icon-64.png",
@@ -532,18 +537,18 @@
     },
     {
       "path": "ui/operator_shell.css",
-      "bytes": 172579,
-      "sha256": "225e338498cf2136d9b96a54b86345c5016f0955f5db05592a5d1d3684144a08"
+      "bytes": 172750,
+      "sha256": "0955643a457da584a04904a4e81e94bf8315d260312778d428107f7e76055808"
     },
     {
       "path": "ui/operator_shell.html",
-      "bytes": 36938,
-      "sha256": "64f508894b10bd0c47de57bd22fbed8c14d55604fd56605faf8e188fe2281c5e"
+      "bytes": 36941,
+      "sha256": "f4e6f00ffbefed75efed56d17bd80ab82a762bdbfa63aa010e6445bd41e9be95"
     },
     {
       "path": "ui/operator_shell.js",
-      "bytes": 356420,
-      "sha256": "4dc06949a4b1e2a2d985eb0b68d361262745383b9a502c193ef66b2e430e8f7f"
+      "bytes": 356584,
+      "sha256": "aff18a551f0162e6b31280652201ecbd2e7ad8c2df085c05c566cfe112a4b756"
     },
     {
       "path": "ui/position_setup_shared.js",
