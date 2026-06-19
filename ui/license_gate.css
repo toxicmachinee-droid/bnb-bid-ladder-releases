@@ -1,0 +1,114 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #101418;
+  color: #eef4f8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: #101418;
+}
+
+.license-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.license-panel {
+  width: min(440px, 100%);
+  border: 1px solid #2e3941;
+  border-radius: 8px;
+  background: #171d22;
+  padding: 28px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: #8fb8c8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0 0 22px;
+  font-size: 28px;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+form {
+  display: grid;
+  gap: 10px;
+}
+
+label {
+  color: #b8c8d0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+input {
+  width: 100%;
+  border: 1px solid #3a4852;
+  border-radius: 6px;
+  background: #0f1418;
+  color: #eef4f8;
+  padding: 12px 13px;
+  font: inherit;
+}
+
+input:focus {
+  outline: 2px solid #58a6b8;
+  outline-offset: 2px;
+}
+
+button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 6px;
+  background: #3cb179;
+  color: #07130d;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.status-line {
+  min-height: 22px;
+  margin: 16px 0 0;
+  color: #aebcc4;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.status-line.error {
+  color: #ffb3a8;
+}
+
+.status-line.ok {
+  color: #9be4bb;
+}
+
+.expiry-line {
+  min-height: 18px;
+  margin: 8px 0 0;
+  color: #8fb8c8;
+  font-size: 13px;
+  line-height: 1.4;
+}

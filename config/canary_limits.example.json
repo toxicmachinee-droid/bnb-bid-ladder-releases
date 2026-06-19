@@ -1,0 +1,13 @@
+{
+  "mode": "canary",
+  "enabled": true,
+  "maxOpenCapitalUsd": 2,
+  "maxPerTxUsd": 2,
+  "maxTxCount": 12,
+  "maxDailyLossUsd": 5,
+  "allowAutoswap": true,
+  "notes": [
+    "Example only. Do not store live secrets here.",
+    "Use micro-size until multiple full green cycles are confirmed."
+  ]
+}

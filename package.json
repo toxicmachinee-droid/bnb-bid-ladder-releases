@@ -1,0 +1,20 @@
+{
+  "name": "bnb-bid-ladder-bot",
+  "private": true,
+  "version": "0.1.0",
+  "type": "commonjs",
+  "scripts": {
+    "audit:public-private": "powershell -NoProfile -Command \"$env:STRICT_PUBLIC_RELEASE='1'; $env:PUBLIC_RELEASE_EXPORT='1'; node ./scripts/audit_public_private_split.cjs\"",
+    "audit:public-release-boundary": "node ./scripts/audit_public_release_boundary.cjs"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7",
+    "ethers": "^6.17.0"
+  },
+  "overrides": {
+    "ws": "^8.21.0"
+  },
+  "dependencies": {
+    "https-proxy-agent": "^7.0.6"
+  }
+}

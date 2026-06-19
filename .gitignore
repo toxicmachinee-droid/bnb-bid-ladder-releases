@@ -1,0 +1,82 @@
+# Dependencies
+node_modules/
+
+# Hardhat / local fork cache
+cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+search-only/config/access-keys.json
+
+# Private licensing/planner server code may be tracked only in the private repo.
+# It must stay out of the audited public export and public client repo.
+# server/
+scripts/license_admin.cjs
+scripts/license_server.cjs
+start admin.cmd
+start bot.cmd
+
+# Runtime logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.codex-logs/
+.playwright-mcp/
+playwright-console-errors.txt
+
+# Coverage / build artifacts
+coverage/
+dist/
+build/
+
+# Temp / editor noise
+/.tmp/
+/.tmp-wbnb-open/
+.playwright-cli/
+test-results/
+/output/
+tests/.tmp-*/
+tests/.tmp-*.png
+after-*.json
+baseline-*.json
+close-*.json
+close-*.txt
+live-after-*.json
+manage-*.json
+manage-*.png
+nav-debug.png
+open-*.json
+pool-search-*.png
+search-only-*.png
+search-only-*.jpg
+search-only/
+search*.json
+swap-*-verify.png
+selected-state.json
+swap-visible.png
+scripts/close_with_retry.py
+scripts/debug_state.py
+scripts/debug_state2.py
+scripts/poll_run.py
+scripts/wait_and_report.py
+scripts/trigger_setup_preview.json
+*.swp
+*.swo
+__pycache__/
+*.pyc
+*.pid
+
+# Runtime state / generated status
+/state/
+/server-data/
+status/runs.json
+status/status.json
+search-only/keygen-app/bin/
+search-only/keygen-app/obj/
+
+# OS noise
+.DS_Store
+Thumbs.db

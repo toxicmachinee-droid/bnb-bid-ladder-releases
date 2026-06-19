@@ -1,0 +1,3486 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BNB BitLadder</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07101b;
+      --panel: rgba(13, 20, 35, 0.82);
+      --panel-strong: rgba(17, 26, 45, 0.95);
+      --line: rgba(155, 176, 213, 0.12);
+      --text: #eef4ff;
+      --muted: #98a9c9;
+      --green: #43e7a7;
+      --green-soft: rgba(67, 231, 167, 0.14);
+      --red: #ff7b90;
+      --red-soft: rgba(255, 123, 144, 0.14);
+      --blue: #70b8ff;
+      --blue-soft: rgba(112, 184, 255, 0.12);
+      --shadow: 0 22px 50px rgba(0, 0, 0, 0.26);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(67, 231, 167, 0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(112, 184, 255, 0.12), transparent 30%),
+        linear-gradient(180deg, #050c15 0%, #08111b 100%);
+      color: var(--text);
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 28px));
+      margin: 26px auto 40px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 14px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(13, 20, 35, 0.88), rgba(9, 15, 26, 0.92));
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: #d6e9ff;
+      font-size: 12px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.05;
+      max-width: 720px;
+    }
+
+    .hero p {
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 15px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 18px;
+      margin-top: 18px;
+      align-items: start;
+    }
+
+    .panel,
+    .summary-card,
+    .position-card,
+    .table-panel {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(180deg, var(--panel-strong), var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    .panel,
+    .table-panel {
+      padding: 18px;
+    }
+
+    .panel-head,
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .section-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .fields {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .field input {
+      width: 100%;
+      height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      padding: 0 14px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .preset-button {
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+      color: #d7e5ff;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .preset-button:hover {
+      border-color: rgba(112, 184, 255, 0.24);
+      background: rgba(112, 184, 255, 0.08);
+    }
+
+    .preset-button.active {
+      color: #06131f;
+      background: linear-gradient(135deg, #43e7a7, #70b8ff);
+      border-color: transparent;
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .action {
+      flex: 1;
+      height: 46px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .action.primary {
+      background: linear-gradient(135deg, rgba(67, 231, 167, 0.22), rgba(112, 184, 255, 0.2));
+      border-color: rgba(112, 184, 255, 0.2);
+    }
+
+    .mini-note {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .lookup-panel {
+      margin-top: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(180deg, var(--panel-strong), var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    .lookup-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.7fr) minmax(0, 0.9fr) auto;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .quick-toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      margin-top: 12px;
+      align-items: start;
+    }
+
+    .quick-toolbar-main {
+      display: grid;
+      gap: 10px;
+    }
+
+    .quick-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .quick-chip {
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13px;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+
+    .quick-chip:hover {
+      transform: translateY(-1px);
+      border-color: rgba(112, 184, 255, 0.22);
+    }
+
+    .quick-chip.active {
+      border-color: rgba(67, 231, 167, 0.28);
+      background: linear-gradient(135deg, rgba(67, 231, 167, 0.18), rgba(112, 184, 255, 0.16));
+    }
+
+    .quick-counter {
+      display: grid;
+      min-width: 220px;
+      gap: 4px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .quick-counter strong {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .quick-counter span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .lookup-input,
+    .lookup-select {
+      width: 100%;
+      height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      padding: 0 14px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .lookup-select option {
+      color: #08121f;
+      background: #f3f7ff;
+    }
+
+    .lookup-button {
+      min-width: 140px;
+      height: 48px;
+      border-radius: 16px;
+      border: 1px solid rgba(112, 184, 255, 0.18);
+      background: linear-gradient(135deg, rgba(67, 231, 167, 0.22), rgba(112, 184, 255, 0.2));
+      color: var(--text);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .lookup-status {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .lookup-results {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .filters-panel {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .filter-box {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .filter-box label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .filter-range {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .filter-range input {
+      width: 100%;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      padding: 0 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .filter-switches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .filter-toggle input {
+      accent-color: #43e7a7;
+    }
+
+    .selected-pool {
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(67, 231, 167, 0.18);
+      background: linear-gradient(180deg, rgba(67, 231, 167, 0.12), rgba(112, 184, 255, 0.05));
+    }
+
+    .selected-pool.hidden {
+      display: none;
+    }
+
+    .selected-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .selected-metric {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .selected-metric span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .selected-metric strong {
+      display: block;
+      font-size: 15px;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .time-box {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .time-box span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .time-box strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .mint-panel {
+      margin-bottom: 16px;
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(112, 184, 255, 0.12);
+      background: linear-gradient(180deg, rgba(17, 26, 45, 0.95), rgba(13, 20, 35, 0.82));
+      box-shadow: var(--shadow);
+    }
+
+    .mint-panel.hidden {
+      display: none;
+    }
+
+    .mint-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mint-metric {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .mint-metric span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .mint-metric strong {
+      display: block;
+      font-size: 15px;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .mint-table {
+      margin-top: 14px;
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .mint-table table {
+      min-width: 760px;
+    }
+
+    .pool-card {
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .pool-card.active {
+      border-color: rgba(67, 231, 167, 0.26);
+      background: linear-gradient(180deg, rgba(67, 231, 167, 0.1), rgba(255, 255, 255, 0.03));
+    }
+
+    .pool-card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .pool-dex {
+      width: fit-content;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: #d6e9ff;
+      font-size: 12px;
+    }
+
+    .pool-pair {
+      margin-top: 6px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .pool-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .pool-section {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .pool-section-title {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .pool-time-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .pool-time-grid.volume {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .pool-time-box {
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .pool-time-box span {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .pool-time-box strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .pool-time-box em {
+      display: block;
+      margin-top: 4px;
+      font-style: normal;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .pool-metric {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .pool-metric span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .pool-metric strong {
+      display: block;
+      font-size: 15px;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .pool-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .pool-select {
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(112, 184, 255, 0.16);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .pool-select.active {
+      color: #07111d;
+      font-weight: 700;
+      border-color: transparent;
+      background: linear-gradient(135deg, #43e7a7, #70b8ff);
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .summary-card {
+      padding: 16px;
+    }
+
+    .summary-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .summary-card strong {
+      display: block;
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .summary-card em {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-style: normal;
+      font-size: 12px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .position-card {
+      padding: 18px;
+    }
+
+    .position-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .position-name {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .position-range {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .badge {
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #d7e5ff;
+    }
+
+    .position-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric-box {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .metric-box span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .metric-box strong {
+      font-size: 16px;
+    }
+
+    .loss-box {
+      background: linear-gradient(180deg, rgba(255, 123, 144, 0.12), rgba(255, 123, 144, 0.04));
+      border-color: rgba(255, 123, 144, 0.14);
+    }
+
+    .table-panel {
+      margin-top: 16px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    th,
+    td {
+      padding: 14px 12px;
+      text-align: right;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #111a2c;
+      color: #d7e5ff;
+      z-index: 1;
+    }
+
+    th:first-child,
+    td:first-child,
+    th:nth-child(2),
+    td:nth-child(2) {
+      text-align: left;
+    }
+
+    .table-loss {
+      color: #ffb1be;
+      font-weight: 600;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .filters-grid,
+      .summary,
+      .position-metrics,
+      .pool-metrics,
+      .pool-time-grid,
+      .selected-grid,
+      .mint-grid,
+      .time-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .shell {
+        width: min(100% - 18px, 1180px);
+        margin: 14px auto 28px;
+      }
+
+      .hero,
+      .panel,
+      .summary-card,
+      .position-card,
+      .table-panel {
+        border-radius: 20px;
+      }
+
+      .lookup-grid,
+      .filters-grid,
+      .pool-time-grid,
+      .preset-grid,
+      .summary,
+      .position-metrics,
+      .pool-metrics {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .filter-switches {
+        flex-direction: column;
+      }
+
+      .position-top,
+      .pool-card-top,
+      .panel-head,
+      .section-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <span class="eyebrow">Meteora style · BNB V3</span>
+      <h1>Простой bid‑калькулятор без мусора в интерфейсе</h1>
+      <p>Выбираешь цену, капитал и готовую растяжку. Лосс в строке — это суммарный лосс всех уже исполненных позиций на выбранной цели. Например, при кнопке -33% третья строка действительно показывает общий лосс трёх позиций, если цена дошла до -33%.</p>
+    </section>
+
+    <section class="lookup-panel">
+      <div class="section-head">
+        <div>
+          <div class="section-title">Поиск пулов по контракту токена</div>
+          <div class="section-subtitle">PancakeSwap V3 и Uniswap V3 на BNB Chain</div>
+        </div>
+        <div class="badge">Этап 1</div>
+      </div>
+
+      <div class="lookup-grid">
+        <input id="tokenAddress" class="lookup-input" type="text" placeholder="Вставь адрес токена 0x..." />
+        <select id="quoteFilter" class="lookup-select">
+          <option value="all">Все основные quote</option>
+          <option value="USDT">Только USDT</option>
+          <option value="USDC">Только USDC</option>
+          <option value="WBNB">Только WBNB</option>
+        </select>
+        <select id="sortPools" class="lookup-select">
+          <option value="score">Сначала лучшие</option>
+          <option value="liquidity">По ликвидности</option>
+          <option value="volume">По объёму 24ч</option>
+          <option value="volume6h">По объёму 6ч</option>
+          <option value="feeTvl">По Fee/TVL окна</option>
+          <option value="txns6h">По сделкам 6ч</option>
+          <option value="buyFlow">По доле покупок</option>
+          <option value="lockedLiquidity">По locked liq</option>
+          <option value="age">По возрасту пула</option>
+          <option value="priceChange">По изменению 24ч</option>
+        </select>
+        <select id="feeTvlWindow" class="lookup-select">
+          <option value="h24" selected>Fee/TVL · 24ч</option>
+          <option value="h12">Fee/TVL · 12ч</option>
+          <option value="h6">Fee/TVL · 6ч</option>
+          <option value="h4">Fee/TVL · 4ч</option>
+          <option value="h2">Fee/TVL · 2ч</option>
+          <option value="h1">Fee/TVL · 1ч</option>
+        </select>
+        <button id="findPools" class="lookup-button" type="button">Найти пулы</button>
+      </div>
+
+      <div class="quick-toolbar">
+        <div class="quick-toolbar-main">
+          <div class="quick-chip-row">
+            <button id="quickPresetFresh" class="quick-chip" type="button">Fresh ≤ 24ч</button>
+            <button id="quickPresetFees" class="quick-chip" type="button">High Fees</button>
+            <button id="quickPresetFlow" class="quick-chip" type="button">Buy Flow</button>
+            <button id="quickPresetLiq" class="quick-chip" type="button">Deep Liq</button>
+          </div>
+          <div class="quick-chip-row">
+            <button id="sortChipScore" class="quick-chip" type="button">Score</button>
+            <button id="sortChipFeeTvl" class="quick-chip" type="button">Fee/TVL</button>
+            <button id="sortChipVolume" class="quick-chip" type="button">Vol 24h</button>
+            <button id="sortChipBuyFlow" class="quick-chip" type="button">Buy Flow</button>
+            <button id="sortChipLiquidity" class="quick-chip" type="button">Liquidity</button>
+          </div>
+        </div>
+        <div id="poolsCounter" class="quick-counter">
+          <strong>0 / 0</strong>
+          <span>Shortlist пуст, можно запускать поиск</span>
+        </div>
+      </div>
+
+      <div class="filters-panel">
+        <div class="section-subtitle">Shortlist в стиле Tokleo: оставил только полезные для BNB Chain метрики без лишних social- и Solana-специфичных показателей.</div>
+        <div class="filters-grid">
+          <div class="filter-box">
+            <label>Market Cap / FDV ($)</label>
+            <div class="filter-range">
+              <input id="filterMcapMin" type="number" step="any" placeholder="Min" />
+              <input id="filterMcapMax" type="number" step="any" placeholder="Max" />
+            </div>
+          </div>
+          <div class="filter-box">
+            <label>Age (hr)</label>
+            <div class="filter-range">
+              <input id="filterAgeMin" type="number" step="any" placeholder="Min" />
+              <input id="filterAgeMax" type="number" step="any" placeholder="Max" />
+            </div>
+          </div>
+          <div class="filter-box">
+            <label>Liquidity ($)</label>
+            <div class="filter-range">
+              <input id="filterLiqMin" type="number" step="any" placeholder="Min" />
+              <input id="filterLiqMax" type="number" step="any" placeholder="Max" />
+            </div>
+          </div>
+          <div class="filter-box">
+            <label>Vol 24h ($)</label>
+            <div class="filter-range">
+              <input id="filterVolMin" type="number" step="any" placeholder="Min" />
+              <input id="filterVolMax" type="number" step="any" placeholder="Max" />
+            </div>
+          </div>
+          <div class="filter-box">
+            <label>Fees 24h ($)</label>
+            <div class="filter-range">
+              <input id="filterFees24hMin" type="number" step="any" placeholder="Min" />
+              <input id="filterFees24hMax" type="number" step="any" placeholder="Max" />
+            </div>
+          </div>
+          <div class="filter-box">
+            <label>Base Fee (%)</label>
+            <div class="filter-range">
+              <input id="filterFeeMin" type="number" step="any" placeholder="Min %" />
+              <input id="filterFeeMax" type="number" step="any" placeholder="Max %" />
+            </div>
+          </div>
+          <div class="filter-box">
+            <label>Fee/TVL (%)</label>
+            <div class="filter-range">
+              <input id="filterFeeTvlMin" type="number" step="any" placeholder="Min %" />
+              <input id="filterFeeTvlMax" type="number" step="any" placeholder="Max %" />
+            </div>
+          </div>
+          <div class="filter-box">
+            <label>Txns 24h</label>
+            <div class="filter-range">
+              <input id="filterTxnsMin" type="number" step="1" placeholder="Min" />
+              <input id="filterTxnsMax" type="number" step="1" placeholder="Max" />
+            </div>
+          </div>
+          <div class="filter-box">
+            <label>Buy flow (%)</label>
+            <div class="filter-range">
+              <input id="filterBuyFlowMin" type="number" step="any" placeholder="Min %" />
+              <input id="filterBuyFlowMax" type="number" step="any" placeholder="Max %" />
+            </div>
+          </div>
+        </div>
+        <div class="filter-switches">
+          <label class="filter-toggle">
+            <input id="bestFeeTvlOnly" type="checkbox" />
+            <span>Best Fee/TVL pool per token</span>
+          </label>
+          <label class="filter-toggle">
+            <input id="topTvlOnly" type="checkbox" />
+            <span>Top TVL pool per token</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="lookupStatus" class="lookup-status">Сейчас поиск идёт по основным quote-токенам: WBNB, USDT, USDC. Этого хватает для первого этапа и для большинства ликвидных пар.</div>
+      <div id="selectedPool" class="selected-pool hidden"></div>
+      <div id="lookupResults" class="lookup-results"></div>
+    </section>
+
+    <div class="layout">
+      <aside class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="section-title">Настройка</div>
+            <div class="section-subtitle">Только главное</div>
+          </div>
+          <div class="badge">HTML-only</div>
+        </div>
+
+        <div class="fields">
+          <div class="field">
+            <label for="price">Цена входа</label>
+            <input id="price" type="number" min="0.0000001" step="0.000001" value="0.07" />
+          </div>
+
+          <div class="field">
+            <label for="capital">Капитал</label>
+            <input id="capital" type="number" min="1" step="1" value="1000" />
+          </div>
+
+          <div class="field">
+            <label>Растяжка</label>
+            <div class="preset-grid" id="presetButtons"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="action primary" id="copyPlan">Скопировать</button>
+          <button class="action" id="resetDefaults">Сбросить</button>
+        </div>
+
+        <div class="mini-note" id="explainBox"></div>
+      </aside>
+
+      <main>
+        <section id="mintPanel" class="mint-panel hidden"></section>
+
+        <section class="summary">
+          <article class="summary-card">
+            <span>Цель</span>
+            <strong id="targetLabel">—</strong>
+            <em id="targetPrice">—</em>
+          </article>
+          <article class="summary-card">
+            <span>Средний вход</span>
+            <strong id="avgEntry">—</strong>
+            <em>по всем активным позициям</em>
+          </article>
+          <article class="summary-card">
+            <span>Лосс на цели</span>
+            <strong id="totalLoss">—</strong>
+            <em id="positionsCount">—</em>
+          </article>
+          <article class="summary-card">
+            <span>Портфель на цели</span>
+            <strong id="portfolioValue">—</strong>
+            <em>стоимость уже купленного объёма</em>
+          </article>
+        </section>
+
+        <section class="stack" id="positions"></section>
+
+        <section class="table-panel">
+          <div class="section-head">
+            <div>
+              <div class="section-title">Короткая таблица</div>
+              <div class="section-subtitle">Без лишних колонок</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Поза</th>
+                  <th>Диапазон</th>
+                  <th>USDT</th>
+                  <th>Avg buy</th>
+                  <th>Лосс</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.umd.min.js"></script>
+  <script>
+    const PRESET_DROPS = [12, 23, 33, 42, 49, 56, 61, 66, 70, 74];
+    const DEX_SCREENER_API = 'https://api.dexscreener.com/latest/dex/tokens/';
+    const DEX_SCREENER_SEARCH_API = 'https://api.dexscreener.com/latest/dex/search?q=';
+    const GECKO_POOL_API = 'https://api.geckoterminal.com/api/v2/networks/bsc/pools/';
+    const GECKO_TOKEN_POOLS_API = 'https://api.geckoterminal.com/api/v2/networks/bsc/tokens/';
+    const BNB_RPC_URLS = [
+      'https://bsc-dataseed.bnbchain.org',
+      'https://bsc-rpc.publicnode.com',
+      'https://1rpc.io/bnb',
+      'https://rpc.ankr.com/bsc'
+    ];
+    const COMMON_QUOTES = [
+      { symbol: 'WBNB', address: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', decimals: 18 },
+      { symbol: 'USDT', address: '0x55d398326f99059fF775485246999027B3197955', decimals: 18 },
+      { symbol: 'USDC', address: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', decimals: 18 }
+    ];
+    const DEXES = [
+      {
+        name: 'PancakeSwap',
+        id: 'pancakeswap',
+        factory: '0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865',
+        fees: [100, 500, 2500, 10000, 20000, 30000, 40000]
+      },
+      {
+        name: 'Uniswap',
+        id: 'uniswap',
+        factory: '0xdB1d10011AD0Ff90774D0C6Bb92e5C5c8b4461F7',
+        fees: [100, 500, 3000, 10000]
+      }
+    ];
+    const providers = BNB_RPC_URLS.map((url) => new ethers.JsonRpcProvider(url, 56, { staticNetwork: true }));
+    const factoryInterface = new ethers.Interface(['function getPool(address,address,uint24) view returns (address)']);
+    const poolInterface = new ethers.Interface([
+      'function token0() view returns (address)',
+      'function token1() view returns (address)',
+      'function fee() view returns (uint24)',
+      'function tickSpacing() view returns (int24)',
+      'function liquidity() view returns (uint128)',
+      'function slot0() view returns (uint160 sqrtPriceX96,int24 tick,uint16,uint16,uint16,uint8,bool)'
+    ]);
+    const erc20Interface = new ethers.Interface([
+      'function symbol() view returns (string)',
+      'function decimals() view returns (uint8)',
+      'function name() view returns (string)'
+    ]);
+
+    const els = {
+      price: document.getElementById('price'),
+      capital: document.getElementById('capital'),
+      presetButtons: document.getElementById('presetButtons'),
+      tokenAddress: document.getElementById('tokenAddress'),
+      quoteFilter: document.getElementById('quoteFilter'),
+      sortPools: document.getElementById('sortPools'),
+      feeTvlWindow: document.getElementById('feeTvlWindow'),
+      findPools: document.getElementById('findPools'),
+      quickPresetFresh: document.getElementById('quickPresetFresh'),
+      quickPresetFees: document.getElementById('quickPresetFees'),
+      quickPresetFlow: document.getElementById('quickPresetFlow'),
+      quickPresetLiq: document.getElementById('quickPresetLiq'),
+      sortChipScore: document.getElementById('sortChipScore'),
+      sortChipFeeTvl: document.getElementById('sortChipFeeTvl'),
+      sortChipVolume: document.getElementById('sortChipVolume'),
+      sortChipBuyFlow: document.getElementById('sortChipBuyFlow'),
+      sortChipLiquidity: document.getElementById('sortChipLiquidity'),
+      poolsCounter: document.getElementById('poolsCounter'),
+      lookupStatus: document.getElementById('lookupStatus'),
+      selectedPool: document.getElementById('selectedPool'),
+      lookupResults: document.getElementById('lookupResults'),
+      filterVolMin: document.getElementById('filterVolMin'),
+      filterVolMax: document.getElementById('filterVolMax'),
+      filterLiqMin: document.getElementById('filterLiqMin'),
+      filterLiqMax: document.getElementById('filterLiqMax'),
+      filterMcapMin: document.getElementById('filterMcapMin'),
+      filterMcapMax: document.getElementById('filterMcapMax'),
+      filterAgeMin: document.getElementById('filterAgeMin'),
+      filterAgeMax: document.getElementById('filterAgeMax'),
+      filterFees24hMin: document.getElementById('filterFees24hMin'),
+      filterFees24hMax: document.getElementById('filterFees24hMax'),
+      filterFeeMin: document.getElementById('filterFeeMin'),
+      filterFeeMax: document.getElementById('filterFeeMax'),
+      filterTxnsMin: document.getElementById('filterTxnsMin'),
+      filterTxnsMax: document.getElementById('filterTxnsMax'),
+      filterBuyFlowMin: document.getElementById('filterBuyFlowMin'),
+      filterBuyFlowMax: document.getElementById('filterBuyFlowMax'),
+      filterFeeTvlMin: document.getElementById('filterFeeTvlMin'),
+      filterFeeTvlMax: document.getElementById('filterFeeTvlMax'),
+      bestFeeTvlOnly: document.getElementById('bestFeeTvlOnly'),
+      topTvlOnly: document.getElementById('topTvlOnly'),
+      mintPanel: document.getElementById('mintPanel'),
+      targetLabel: document.getElementById('targetLabel'),
+      targetPrice: document.getElementById('targetPrice'),
+      avgEntry: document.getElementById('avgEntry'),
+      totalLoss: document.getElementById('totalLoss'),
+      positionsCount: document.getElementById('positionsCount'),
+      portfolioValue: document.getElementById('portfolioValue'),
+      positions: document.getElementById('positions'),
+      tableBody: document.getElementById('tableBody'),
+      explainBox: document.getElementById('explainBox'),
+      copyPlan: document.getElementById('copyPlan'),
+      resetDefaults: document.getElementById('resetDefaults')
+    };
+
+    const defaults = {
+      price: 0.07,
+      capital: 1000,
+      targetDropAbs: 33
+    };
+
+    const state = {
+      selectedDropAbs: defaults.targetDropAbs,
+      discoveredPools: [],
+      selectedPoolId: null,
+      discoveryMode: 'token',
+      enrichRequestId: 0,
+      activeQuickPreset: null
+    };
+
+    const LOOKUP_STORAGE_KEY = 'bnb-chain-pool-lookup-preferences-v2';
+    const lookupFilterInputs = [
+      els.filterVolMin,
+      els.filterVolMax,
+      els.filterLiqMin,
+      els.filterLiqMax,
+      els.filterMcapMin,
+      els.filterMcapMax,
+      els.filterAgeMin,
+      els.filterAgeMax,
+      els.filterFees24hMin,
+      els.filterFees24hMax,
+      els.filterFeeMin,
+      els.filterFeeMax,
+      els.filterTxnsMin,
+      els.filterTxnsMax,
+      els.filterBuyFlowMin,
+      els.filterBuyFlowMax,
+      els.filterFeeTvlMin,
+      els.filterFeeTvlMax
+    ];
+    const quickPresetButtons = [
+      ['fresh', els.quickPresetFresh],
+      ['fees', els.quickPresetFees],
+      ['flow', els.quickPresetFlow],
+      ['liq', els.quickPresetLiq]
+    ];
+    const quickSortButtons = [
+      ['score', els.sortChipScore],
+      ['feeTvl', els.sortChipFeeTvl],
+      ['volume', els.sortChipVolume],
+      ['buyFlow', els.sortChipBuyFlow],
+      ['liquidity', els.sortChipLiquidity]
+    ];
+    const QUICK_PRESETS = {
+      fresh: {
+        sortPools: 'age',
+        values: {
+          filterAgeMax: '24',
+          filterLiqMin: '25000',
+          filterVolMin: '50000',
+          filterTxnsMin: '80'
+        }
+      },
+      fees: {
+        sortPools: 'feeTvl',
+        feeTvlWindow: 'h24',
+        aggregationMode: 'bestFeeTvl',
+        values: {
+          filterFees24hMin: '500',
+          filterFeeTvlMin: '0.3',
+          filterVolMin: '150000'
+        }
+      },
+      flow: {
+        sortPools: 'buyFlow',
+        values: {
+          filterBuyFlowMin: '55',
+          filterVolMin: '100000',
+          filterTxnsMin: '120'
+        }
+      },
+      liq: {
+        sortPools: 'liquidity',
+        aggregationMode: 'topTvl',
+        values: {
+          filterLiqMin: '100000',
+          filterVolMin: '75000'
+        }
+      }
+    };
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function formatPrice(value) {
+      return Number(value).toFixed(6);
+    }
+
+    function formatUsd(value) {
+      return new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+    }
+
+    function formatPct(value) {
+      return `${value.toFixed(2)}%`;
+    }
+
+    function formatCompact(value) {
+      if (!Number.isFinite(value)) {
+        return '—';
+      }
+
+      if (Math.abs(value) >= 1_000_000_000) {
+        return `${(value / 1_000_000_000).toFixed(2)}B`;
+      }
+
+      if (Math.abs(value) >= 1_000_000) {
+        return `${(value / 1_000_000).toFixed(2)}M`;
+      }
+
+      if (Math.abs(value) >= 1_000) {
+        return `${(value / 1_000).toFixed(2)}K`;
+      }
+
+      if (Math.abs(value) >= 1) {
+        return value.toFixed(2);
+      }
+
+      return value.toFixed(6);
+    }
+
+    function parseOptionalNumber(value) {
+      if (value === '' || value == null) {
+        return null;
+      }
+
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function updatePoolsCounter(visibleCount = 0, totalCount = state.discoveredPools.length) {
+      if (!totalCount) {
+        els.poolsCounter.innerHTML = '<strong>0 / 0</strong><span>Shortlist пуст, можно запускать поиск</span>';
+        return;
+      }
+
+      const hiddenCount = Math.max(totalCount - visibleCount, 0);
+      els.poolsCounter.innerHTML = `<strong>${visibleCount} / ${totalCount}</strong><span>${hiddenCount ? `Скрыто фильтрами: ${hiddenCount}` : 'Все найденные пулы проходят текущий shortlist'}</span>`;
+    }
+
+    function setAggregationMode(mode) {
+      els.bestFeeTvlOnly.checked = mode === 'bestFeeTvl';
+      els.topTvlOnly.checked = mode === 'topTvl';
+    }
+
+    function clearLookupFilters() {
+      lookupFilterInputs.forEach((input) => {
+        input.value = '';
+      });
+      setAggregationMode('all');
+    }
+
+    function renderQuickControls() {
+      quickPresetButtons.forEach(([key, button]) => {
+        button.className = state.activeQuickPreset === key ? 'quick-chip active' : 'quick-chip';
+      });
+
+      quickSortButtons.forEach(([value, button]) => {
+        button.className = els.sortPools.value === value ? 'quick-chip active' : 'quick-chip';
+      });
+    }
+
+    function saveLookupPreferences() {
+      if (!window.localStorage) {
+        return;
+      }
+
+      const payload = {
+        tokenAddress: els.tokenAddress.value.trim(),
+        quoteFilter: els.quoteFilter.value,
+        sortPools: els.sortPools.value,
+        feeTvlWindow: els.feeTvlWindow.value,
+        bestFeeTvlOnly: els.bestFeeTvlOnly.checked,
+        topTvlOnly: els.topTvlOnly.checked,
+        activeQuickPreset: state.activeQuickPreset,
+        filters: Object.fromEntries(lookupFilterInputs.map((input) => [input.id, input.value]))
+      };
+
+      try {
+        window.localStorage.setItem(LOOKUP_STORAGE_KEY, JSON.stringify(payload));
+      } catch (error) {
+      }
+    }
+
+    function restoreLookupPreferences() {
+      if (!window.localStorage) {
+        return;
+      }
+
+      try {
+        const raw = window.localStorage.getItem(LOOKUP_STORAGE_KEY);
+        if (!raw) {
+          return;
+        }
+
+        const payload = JSON.parse(raw);
+        if (!payload || typeof payload !== 'object') {
+          return;
+        }
+
+        if (typeof payload.tokenAddress === 'string') {
+          els.tokenAddress.value = payload.tokenAddress;
+        }
+
+        if (typeof payload.quoteFilter === 'string') {
+          els.quoteFilter.value = payload.quoteFilter;
+        }
+
+        if (typeof payload.sortPools === 'string') {
+          els.sortPools.value = payload.sortPools;
+        }
+
+        if (typeof payload.feeTvlWindow === 'string') {
+          els.feeTvlWindow.value = payload.feeTvlWindow;
+        }
+
+        lookupFilterInputs.forEach((input) => {
+          const nextValue = payload.filters?.[input.id];
+          if (typeof nextValue === 'string') {
+            input.value = nextValue;
+          }
+        });
+
+        els.bestFeeTvlOnly.checked = Boolean(payload.bestFeeTvlOnly);
+        els.topTvlOnly.checked = !els.bestFeeTvlOnly.checked && Boolean(payload.topTvlOnly);
+        state.activeQuickPreset = typeof payload.activeQuickPreset === 'string' ? payload.activeQuickPreset : null;
+      } catch (error) {
+      }
+    }
+
+    function syncLookupUi() {
+      renderDiscoveredPools();
+      renderSelectedPool();
+      renderQuickControls();
+      saveLookupPreferences();
+    }
+
+    function applyQuickSort(sortMode) {
+      els.sortPools.value = sortMode;
+      syncLookupUi();
+    }
+
+    function applyQuickPreset(presetKey) {
+      const preset = QUICK_PRESETS[presetKey];
+      if (!preset) {
+        return;
+      }
+
+      clearLookupFilters();
+
+      Object.entries(preset.values || {}).forEach(([field, value]) => {
+        if (els[field]) {
+          els[field].value = value;
+        }
+      });
+
+      if (preset.sortPools) {
+        els.sortPools.value = preset.sortPools;
+      }
+
+      if (preset.feeTvlWindow) {
+        els.feeTvlWindow.value = preset.feeTvlWindow;
+      }
+
+      setAggregationMode(preset.aggregationMode || 'all');
+      state.activeQuickPreset = presetKey;
+      syncLookupUi();
+    }
+
+    function getFilterConfig() {
+      return {
+        volume24h: [parseOptionalNumber(els.filterVolMin.value), parseOptionalNumber(els.filterVolMax.value)],
+        liquidity: [parseOptionalNumber(els.filterLiqMin.value), parseOptionalNumber(els.filterLiqMax.value)],
+        marketCap: [parseOptionalNumber(els.filterMcapMin.value), parseOptionalNumber(els.filterMcapMax.value)],
+        ageHours: [parseOptionalNumber(els.filterAgeMin.value), parseOptionalNumber(els.filterAgeMax.value)],
+        fees24h: [parseOptionalNumber(els.filterFees24hMin.value), parseOptionalNumber(els.filterFees24hMax.value)],
+        baseFeePercent: [parseOptionalNumber(els.filterFeeMin.value), parseOptionalNumber(els.filterFeeMax.value)],
+        txns24h: [parseOptionalNumber(els.filterTxnsMin.value), parseOptionalNumber(els.filterTxnsMax.value)],
+        buyFlowPercent: [parseOptionalNumber(els.filterBuyFlowMin.value), parseOptionalNumber(els.filterBuyFlowMax.value)],
+        feeTvlPercent: [parseOptionalNumber(els.filterFeeTvlMin.value), parseOptionalNumber(els.filterFeeTvlMax.value)],
+        aggregationMode: els.bestFeeTvlOnly.checked ? 'bestFeeTvl' : els.topTvlOnly.checked ? 'topTvl' : 'all'
+      };
+    }
+
+    function inRange(value, min, max) {
+      if (!Number.isFinite(value)) {
+        return min == null && max == null;
+      }
+
+      if (min != null && value < min) {
+        return false;
+      }
+
+      if (max != null && value > max) {
+        return false;
+      }
+
+      return true;
+    }
+
+    function getFeeTvlMetric(pool, windowKey = els.feeTvlWindow.value) {
+      const fieldMap = {
+        h24: 'feeTvl24h',
+        h12: 'feeTvl12h',
+        h6: 'feeTvl6h',
+        h4: 'feeTvl4h',
+        h2: 'feeTvl2h',
+        h1: 'feeTvl1h'
+      };
+      const fieldName = fieldMap[windowKey] || 'feeTvl6h';
+      const value = Number(pool?.[fieldName]);
+      return Number.isFinite(value) ? value : null;
+    }
+
+    function getFeeTvlValue(pool, windowKey = els.feeTvlWindow.value) {
+      return getFeeTvlMetric(pool, windowKey) ?? 0;
+    }
+
+    function formatFeeTvlValue(pool, windowKey = els.feeTvlWindow.value) {
+      return formatRatioPercent(getFeeTvlMetric(pool, windowKey));
+    }
+
+    function formatFeeBadge(pool) {
+      return Number.isFinite(pool?.fee) && pool.fee > 0 ? `${(pool.fee / 10000).toFixed(2)}%` : 'н/д';
+    }
+
+    function formatPoolVersion(pool) {
+      return pool?.poolVersion ? pool.poolVersion.toUpperCase() : 'DEX';
+    }
+
+    function getDexDisplayName(dexId, fallbackName = '') {
+      const normalizedDexId = String(dexId || '').toLowerCase();
+      const normalizedFallback = String(fallbackName || '').trim();
+
+      if (normalizedDexId.includes('pancake')) return 'PancakeSwap';
+      if (normalizedDexId.includes('uniswap')) return 'Uniswap';
+      if (normalizedDexId.includes('thena')) return 'THENA';
+      if (normalizedDexId.includes('sushi')) return 'SushiSwap';
+      if (normalizedDexId.includes('aerodrome')) return 'Aerodrome';
+
+      return normalizedFallback || 'DEX';
+    }
+
+    function formatAgeLabel(poolCreatedAt) {
+      if (!poolCreatedAt) {
+        return '—';
+      }
+
+      const createdAt = new Date(poolCreatedAt);
+      const ageMs = Date.now() - createdAt.getTime();
+
+      if (!Number.isFinite(ageMs) || ageMs < 0) {
+        return '—';
+      }
+
+      const ageHours = ageMs / 3_600_000;
+
+      if (ageHours < 24) {
+        return `${ageHours.toFixed(1)}ч`;
+      }
+
+      const ageDays = ageHours / 24;
+
+      if (ageDays < 30) {
+        return `${ageDays.toFixed(1)}д`;
+      }
+
+      return `${(ageDays / 30).toFixed(1)}м`;
+    }
+
+    function formatFlowRatio(buys, sells) {
+      const total = Number(buys || 0) + Number(sells || 0);
+      if (!total) {
+        return '—';
+      }
+
+      return `${((Number(buys || 0) / total) * 100).toFixed(1)}% buy`;
+    }
+
+    function getBuyFlowShare(pool) {
+      const buys = Number(pool?.buys24h || 0);
+      const sells = Number(pool?.sells24h || 0);
+      const total = buys + sells;
+      return total > 0 ? buys / total : 0;
+    }
+
+    function getPoolAgeHours(pool) {
+      if (!pool?.poolCreatedAt) {
+        return Number.POSITIVE_INFINITY;
+      }
+
+      const createdAt = new Date(pool.poolCreatedAt).getTime();
+
+      if (!Number.isFinite(createdAt)) {
+        return Number.POSITIVE_INFINITY;
+      }
+
+      return (Date.now() - createdAt) / 3_600_000;
+    }
+
+    function getPoolFeePercent(pool) {
+      const feeRate = getFeeRate(pool);
+      return Number.isFinite(feeRate) ? feeRate * 100 : null;
+    }
+
+    function scorePool(pool) {
+      const feeTvl = getFeeTvlValue(pool);
+      const liq = Number.isFinite(pool.liquidity) ? pool.liquidity : 0;
+      const vol = Number.isFinite(pool.volume24h) ? pool.volume24h : 0;
+      const txns = Number.isFinite(pool.txns24h) ? pool.txns24h : 0;
+      const confirmedBonus = pool.onchainLoaded ? 50000 : 0;
+      return feeTvl * 1_000_000 + liq * 0.1 + vol + txns * 50 + confirmedBonus;
+    }
+
+    function applyPoolFilters(pools) {
+      const filters = getFilterConfig();
+
+      return pools.filter((pool) =>
+        inRange(pool.volume24h, filters.volume24h[0], filters.volume24h[1])
+        && inRange(pool.liquidity, filters.liquidity[0], filters.liquidity[1])
+        && inRange(pool.marketCap, filters.marketCap[0], filters.marketCap[1])
+        && inRange(getPoolAgeHours(pool), filters.ageHours[0], filters.ageHours[1])
+        && inRange(getEstimatedFees(pool, 24), filters.fees24h[0], filters.fees24h[1])
+        && inRange(getPoolFeePercent(pool), filters.baseFeePercent[0], filters.baseFeePercent[1])
+        && inRange(pool.txns24h, filters.txns24h[0], filters.txns24h[1])
+        && inRange(getBuyFlowShare(pool) * 100, filters.buyFlowPercent[0], filters.buyFlowPercent[1])
+        && inRange(getFeeTvlValue(pool) * 100, filters.feeTvlPercent[0], filters.feeTvlPercent[1])
+      );
+    }
+
+    function applyTokenAggregation(pools) {
+      const { aggregationMode } = getFilterConfig();
+      if (aggregationMode === 'all') {
+        return pools;
+      }
+
+      const grouped = new Map();
+
+      for (const pool of pools) {
+        const key = String(pool.inputTokenAddress || pool.baseTokenAddress || pool.pairLabel || pool.id || '').toLowerCase();
+        if (!key) {
+          continue;
+        }
+
+        const candidateScore = aggregationMode === 'bestFeeTvl'
+          ? getFeeTvlValue(pool)
+          : Number(pool.liquidity || 0);
+        const current = grouped.get(key);
+        const currentScore = current
+          ? aggregationMode === 'bestFeeTvl'
+            ? getFeeTvlValue(current)
+            : Number(current.liquidity || 0)
+          : Number.NEGATIVE_INFINITY;
+
+        if (!current || candidateScore > currentScore) {
+          grouped.set(key, pool);
+        }
+      }
+
+      return [...grouped.values()];
+    }
+
+    function sortPools(pools) {
+      const list = [...pools];
+      const sortMode = els.sortPools.value;
+
+      if (sortMode === 'liquidity') {
+        list.sort((left, right) => (right.liquidity || 0) - (left.liquidity || 0));
+        return list;
+      }
+
+      if (sortMode === 'volume') {
+        list.sort((left, right) => (right.volume24h || 0) - (left.volume24h || 0));
+        return list;
+      }
+
+      if (sortMode === 'volume6h') {
+        list.sort((left, right) => (right.volume6h || 0) - (left.volume6h || 0));
+        return list;
+      }
+
+      if (sortMode === 'feeTvl') {
+        list.sort((left, right) => getFeeTvlValue(right) - getFeeTvlValue(left));
+        return list;
+      }
+
+      if (sortMode === 'txns6h') {
+        list.sort((left, right) => (right.txns6h || 0) - (left.txns6h || 0));
+        return list;
+      }
+
+      if (sortMode === 'buyFlow') {
+        list.sort((left, right) => getBuyFlowShare(right) - getBuyFlowShare(left));
+        return list;
+      }
+
+      if (sortMode === 'lockedLiquidity') {
+        list.sort((left, right) => (right.lockedLiquidityPct || 0) - (left.lockedLiquidityPct || 0));
+        return list;
+      }
+
+      if (sortMode === 'age') {
+        list.sort((left, right) => getPoolAgeHours(left) - getPoolAgeHours(right));
+        return list;
+      }
+
+      if (sortMode === 'priceChange') {
+        list.sort((left, right) => Math.abs(right.priceChange24h || 0) - Math.abs(left.priceChange24h || 0));
+        return list;
+      }
+
+      if (sortMode === 'score') {
+        list.sort((left, right) => scorePool(right) - scorePool(left));
+        return list;
+      }
+
+      list.sort((left, right) => scorePool(right) - scorePool(left));
+      return list;
+    }
+
+    function getFeeRate(pool) {
+      if (!Number.isFinite(pool.fee) || pool.fee <= 0) {
+        return null;
+      }
+
+      return pool.fee / 1_000_000;
+    }
+
+    function estimateWindowVolume(pool, hours) {
+      const volume1h = Number(pool.volume1h || 0);
+      const volume6h = Number(pool.volume6h || 0);
+      const volume24h = Number(pool.volume24h || 0);
+
+      if (hours === 1) return volume1h;
+      if (hours === 2) return volume6h > 0 ? volume6h * (2 / 6) : volume1h * 2;
+      if (hours === 4) return volume6h > 0 ? volume6h * (4 / 6) : volume1h * 4;
+      if (hours === 6) return volume6h;
+      if (hours === 12) return volume24h > 0 ? volume24h * 0.5 : volume6h * 2;
+      if (hours === 24) return volume24h;
+      return 0;
+    }
+
+    function getEstimatedFees(pool, hours = 24) {
+      const feeRate = getFeeRate(pool);
+      if (!feeRate) {
+        return null;
+      }
+
+      return estimateWindowVolume(pool, hours) * feeRate;
+    }
+
+    function buildFeeTvlSeries(pool) {
+      const feeRate = getFeeRate(pool);
+      const tvl = Number(pool.liquidity || 0);
+
+      if (!feeRate || !tvl) {
+        return {
+          h24: null,
+          h12: null,
+          h6: null,
+          h4: null,
+          h2: null,
+          h1: null
+        };
+      }
+
+      const buildValue = (hours) => (estimateWindowVolume(pool, hours) * feeRate) / tvl;
+
+      return {
+        h24: buildValue(24),
+        h12: buildValue(12),
+        h6: buildValue(6),
+        h4: buildValue(4),
+        h2: buildValue(2),
+        h1: buildValue(1)
+      };
+    }
+
+    function formatRatioPercent(value) {
+      if (!Number.isFinite(value)) {
+        return '—';
+      }
+
+      return `${(value * 100).toFixed(3)}%`;
+    }
+
+    function getTimeWindowHours(windowKey) {
+      const mapping = {
+        h24: 24,
+        h12: 12,
+        h6: 6,
+        h4: 4,
+        h2: 2,
+        h1: 1
+      };
+      return mapping[windowKey] || 24;
+    }
+
+    function formatHourlyMetric(value, hours, formatter = formatCompact) {
+      if (!Number.isFinite(value) || !hours) {
+        return '—';
+      }
+
+      return `${formatter(value / hours)}/ч`;
+    }
+
+    function buildTemplateSegments() {
+      const segments = [];
+      let previousDrop = 0;
+
+      for (const endDrop of PRESET_DROPS) {
+        const midpoint = (previousDrop + endDrop) / 2;
+        segments.push({
+          startDrop: previousDrop,
+          endDrop,
+          baseWeight: midpoint ** 2
+        });
+        previousDrop = endDrop;
+      }
+
+      return segments;
+    }
+
+    function buildActiveSegments(targetDropAbs) {
+      const segments = [];
+
+      for (const segment of buildTemplateSegments()) {
+        if (targetDropAbs <= segment.startDrop) {
+          break;
+        }
+
+        segments.push(segment);
+
+        if (segment.endDrop >= targetDropAbs) {
+          break;
+        }
+      }
+
+      return segments;
+    }
+
+    function buildPositions({ price, capital, targetDropAbs }) {
+      const activeSegments = buildActiveSegments(targetDropAbs);
+      const weightSum = activeSegments.reduce((sum, segment) => sum + segment.baseWeight, 0);
+      const rows = [];
+
+      let cumulativeUsdt = 0;
+      let cumulativeTokens = 0;
+
+      for (const [index, segment] of activeSegments.entries()) {
+        const pHigh = price * (1 - segment.startDrop / 100);
+        const pLow = price * (1 - segment.endDrop / 100);
+        const usdt = capital * segment.baseWeight / weightSum;
+        const capitalPct = usdt / capital * 100;
+        const avgBuy = Math.sqrt(pHigh * pLow);
+        const tokens = usdt / avgBuy;
+
+        cumulativeUsdt += usdt;
+        cumulativeTokens += tokens;
+
+        const portfolioValue = cumulativeTokens * pLow;
+        const lossAtLevel = (1 - portfolioValue / cumulativeUsdt) * 100;
+        const avgEntry = cumulativeUsdt / cumulativeTokens;
+
+        rows.push({
+          index: index + 1,
+          endDrop: segment.endDrop,
+          pHigh,
+          pLow,
+          usdt,
+          capitalPct,
+          avgBuy,
+          avgEntry,
+          lossAtLevel
+        });
+      }
+
+      const lastRow = rows[rows.length - 1];
+
+      return {
+        rows,
+        summary: {
+          targetDropAbs,
+          targetPrice: lastRow.pLow,
+          avgEntry: lastRow.avgEntry,
+          lossAtLevel: lastRow.lossAtLevel,
+          portfolioValue: cumulativeTokens * lastRow.pLow,
+          positionsCount: rows.length
+        }
+      };
+    }
+
+    function renderPresetButtons() {
+      els.presetButtons.innerHTML = PRESET_DROPS.map((drop) => `
+        <button class="preset-button${drop === state.selectedDropAbs ? ' active' : ''}" type="button" data-drop="${drop}">
+          -${drop}%
+        </button>
+      `).join('');
+
+      els.presetButtons.querySelectorAll('.preset-button').forEach((button) => {
+        button.addEventListener('click', () => {
+          state.selectedDropAbs = Number(button.dataset.drop);
+          renderPresetButtons();
+          render();
+        });
+      });
+    }
+
+    function getInputs() {
+      return {
+        price: clamp(Number(els.price.value) || defaults.price, 0.0000001, Number.MAX_SAFE_INTEGER),
+        capital: clamp(Number(els.capital.value) || defaults.capital, 1, Number.MAX_SAFE_INTEGER),
+        targetDropAbs: state.selectedDropAbs
+      };
+    }
+
+    function renderSummary(summary) {
+      els.targetLabel.textContent = `-${summary.targetDropAbs}%`;
+      els.targetPrice.textContent = `цена ${formatPrice(summary.targetPrice)}`;
+      els.avgEntry.textContent = formatPrice(summary.avgEntry);
+      els.totalLoss.textContent = formatPct(summary.lossAtLevel);
+      els.positionsCount.textContent = `${summary.positionsCount} поз. в расчёте`;
+      els.portfolioValue.textContent = `${formatUsd(summary.portfolioValue)} USDT`;
+    }
+
+    function renderExplanation(rows) {
+      const last = rows[rows.length - 1];
+      els.explainBox.innerHTML = `
+        На кнопке <strong>-${last.endDrop}%</strong> лосс считается так: если цена дошла до этого уровня, все эти <strong>${rows.length}</strong> позиции уже исполнены. Значение <strong>${formatPct(last.lossAtLevel)}</strong> — это общий лосс всей собранной позиции на этой цели.
+      `;
+    }
+
+    function renderPositions(rows) {
+      els.positions.innerHTML = rows.map((row) => `
+        <article class="position-card">
+          <div class="position-top">
+            <div>
+              <div class="position-name">Поза #${row.index} · до -${row.endDrop}%</div>
+              <div class="position-range">${formatPrice(row.pHigh)} → ${formatPrice(row.pLow)}</div>
+            </div>
+            <div class="badge">${formatPct(row.capitalPct)} капитала</div>
+          </div>
+
+          <div class="position-metrics">
+            <div class="metric-box">
+              <span>USDT</span>
+              <strong>${formatUsd(row.usdt)}</strong>
+            </div>
+            <div class="metric-box">
+              <span>Avg buy</span>
+              <strong>${formatPrice(row.avgBuy)}</strong>
+            </div>
+            <div class="metric-box">
+              <span>Средний вход</span>
+              <strong>${formatPrice(row.avgEntry)}</strong>
+            </div>
+            <div class="metric-box loss-box">
+              <span>Лосс к этому уровню</span>
+              <strong>${formatPct(row.lossAtLevel)}</strong>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderTable(rows) {
+      els.tableBody.innerHTML = rows.map((row) => `
+        <tr>
+          <td>#${row.index}</td>
+          <td>${formatPrice(row.pHigh)} → ${formatPrice(row.pLow)}</td>
+          <td>${formatUsd(row.usdt)}</td>
+          <td>${formatPrice(row.avgBuy)}</td>
+          <td class="table-loss">${formatPct(row.lossAtLevel)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function getSelectedPool() {
+      return state.discoveredPools.find((pool) => pool.id === state.selectedPoolId) || null;
+    }
+
+    function priceToRawTick(price) {
+      return Math.log(price) / Math.log(1.0001);
+    }
+
+    function roundTickDown(tick, spacing) {
+      return Math.floor(tick / spacing) * spacing;
+    }
+
+    function roundTickUp(tick, spacing) {
+      return Math.ceil(tick / spacing) * spacing;
+    }
+
+    function displayPriceToTick(displayPrice, pool) {
+      const inputIsToken0 = pool.inputTokenAddress.toLowerCase() === pool.token0Address.toLowerCase();
+
+      if (inputIsToken0) {
+        const rawPrice = displayPrice * (10 ** (pool.token1Decimals - pool.token0Decimals));
+        return priceToRawTick(rawPrice);
+      }
+
+      const rawPrice = (1 / displayPrice) * (10 ** (pool.token1Decimals - pool.token0Decimals));
+      return priceToRawTick(rawPrice);
+    }
+
+    function buildMintPreviewRows(rows, pool) {
+      if (!pool || !pool.tickSpacing || !pool.onchainLoaded) {
+        return [];
+      }
+
+      return rows.map((row) => {
+        const lowerTickRaw = displayPriceToTick(row.pLow, pool);
+        const upperTickRaw = displayPriceToTick(row.pHigh, pool);
+        let lowerTick = roundTickDown(lowerTickRaw, pool.tickSpacing);
+        let upperTick = roundTickUp(upperTickRaw, pool.tickSpacing);
+
+        if (upperTick <= lowerTick) {
+          upperTick = lowerTick + pool.tickSpacing;
+        }
+
+        return {
+          index: row.index,
+          priceRange: `${formatPrice(row.pHigh)} → ${formatPrice(row.pLow)}`,
+          capital: `${formatUsd(row.usdt)} ${pool.depositTokenSymbol}`,
+          lowerTick,
+          upperTick
+        };
+      });
+    }
+
+    function renderMintPreview(rows) {
+      const pool = getSelectedPool();
+
+      if (!pool) {
+        els.mintPanel.classList.add('hidden');
+        els.mintPanel.innerHTML = '';
+        return;
+      }
+
+      const mintRows = buildMintPreviewRows(rows, pool);
+
+      if (!pool.onchainLoaded) {
+        els.mintPanel.classList.remove('hidden');
+        els.mintPanel.innerHTML = `
+          <div class="section-head">
+            <div>
+              <div class="section-title">Подготовка mint-позиций</div>
+              <div class="section-subtitle">${pool.dex} · ${pool.pairLabel}</div>
+            </div>
+            <div class="badge">ожидает onchain</div>
+          </div>
+          <div class="lookup-status">Для этого пула браузер пока не смог подтянуть tick и tickSpacing. Сам пул уже найден, цена и рыночные метрики видны, но для реального mint-preview нужны onchain-метаданные.</div>
+        `;
+        return;
+      }
+
+      els.mintPanel.classList.remove('hidden');
+      els.mintPanel.innerHTML = `
+        <div class="section-head">
+          <div>
+            <div class="section-title">Подготовка mint-позиций</div>
+            <div class="section-subtitle">${pool.dex} · ${pool.pairLabel}</div>
+          </div>
+          <div class="badge">${pool.depositTokenSymbol} only</div>
+        </div>
+
+        <div class="mint-grid">
+          <div class="mint-metric">
+            <span>Текущий tick</span>
+            <strong>${pool.tick}</strong>
+          </div>
+          <div class="mint-metric">
+            <span>Tick spacing</span>
+            <strong>${pool.tickSpacing}</strong>
+          </div>
+          <div class="mint-metric">
+            <span>Депозитный токен</span>
+            <strong>${pool.depositTokenSymbol}</strong>
+          </div>
+          <div class="mint-metric">
+            <span>Позиции к mint</span>
+            <strong>${mintRows.length}</strong>
+          </div>
+        </div>
+
+        <div class="lookup-status">Ниже уже не просто калькулятор цен, а черновик реальных диапазонов для V3 mint. Границы округляются под usable ticks выбранного пула.</div>
+
+        <div class="mint-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Поза</th>
+                <th>Диапазон</th>
+                <th>Сумма</th>
+                <th>Upper tick</th>
+                <th>Lower tick</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${mintRows.map((row) => `
+                <tr>
+                  <td>#${row.index}</td>
+                  <td>${row.priceRange}</td>
+                  <td>${row.capital}</td>
+                  <td>${row.upperTick}</td>
+                  <td>${row.lowerTick}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderSelectedPool() {
+      const pool = getSelectedPool();
+
+      if (!pool) {
+        els.selectedPool.classList.add('hidden');
+        els.selectedPool.innerHTML = '';
+        return;
+      }
+
+      const selectedWindow = els.feeTvlWindow.value;
+      const selectedWindowLabel = selectedWindow.replace('h', '') + 'ч';
+      const enrichNote = pool.poolVersion === 'v2'
+        ? 'Это V2-пул: у него нет tick и tickSpacing, поэтому блок V3 onchain-метаданных здесь не появится, но fee и Fee/TVL всё равно считаются.'
+        : pool.enrichStatus === 'loading'
+        ? 'Идёт повторная onchain-загрузка tick / spacing / fee по выбранному пулу.'
+        : pool.onchainLoaded
+          ? 'Tick-метаданные загружены.'
+          : pool.enrichStatus === 'failed'
+            ? 'Tick spacing / Tick недоступны, повторная onchain-загрузка не отдала ответ, пул остаётся доступным через screener.'
+            : 'Tick spacing / Tick недоступны, потому что браузер не смог добрать V3 onchain-метаданные с RPC, но сам пул найден через screener и не скрывается.';
+
+      els.selectedPool.classList.remove('hidden');
+      els.selectedPool.innerHTML = `
+        <div class="section-head">
+          <div>
+            <div class="section-title">Выбранный пул</div>
+            <div class="section-subtitle">${pool.dex} · ${formatPoolVersion(pool)} · ${pool.pairLabel}</div>
+          </div>
+          <div class="badge">Fee ${formatFeeBadge(pool)}</div>
+        </div>
+
+        <div class="selected-grid">
+          <div class="selected-metric">
+            <span>Цена токена</span>
+            <strong>${pool.targetPrice ? `${formatCompact(pool.targetPrice)} ${pool.quoteSymbol}` : '—'}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Tick spacing</span>
+            <strong>${pool.onchainLoaded ? pool.tickSpacing : 'недоступно'}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Tick</span>
+            <strong>${pool.onchainLoaded ? pool.tick : 'недоступно'}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Fee/TVL ${selectedWindowLabel}</span>
+            <strong>${formatFeeTvlValue(pool, selectedWindow)}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Base Fee</span>
+            <strong>${Number.isFinite(getPoolFeePercent(pool)) ? formatPct(getPoolFeePercent(pool)) : '—'}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Fees 24ч</span>
+            <strong>${formatCompact(getEstimatedFees(pool, 24))}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Объём 6ч / 1ч</span>
+            <strong>${formatCompact(pool.volume6h)} / ${formatCompact(pool.volume1h)}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Pool address</span>
+            <strong>${pool.poolAddress}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Reserve / Liq</span>
+            <strong>${formatCompact(pool.reserveUsd || pool.liquidity)}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>MCap / FDV</span>
+            <strong>${formatCompact(pool.marketCap)} / ${formatCompact(pool.fdv)}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Txns 6ч / 1ч</span>
+            <strong>${Number.isFinite(pool.txns6h) ? pool.txns6h : '—'} / ${Number.isFinite(pool.txns1h) ? pool.txns1h : '—'}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Buy flow 24ч</span>
+            <strong>${formatFlowRatio(pool.buys24h, pool.sells24h)}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Age</span>
+            <strong>${formatAgeLabel(pool.poolCreatedAt)}</strong>
+          </div>
+          <div class="selected-metric">
+            <span>Locked liq</span>
+            <strong>${Number.isFinite(pool.lockedLiquidityPct) ? `${pool.lockedLiquidityPct.toFixed(2)}%` : '—'}</strong>
+          </div>
+        </div>
+
+        <div class="pool-section">
+          <div class="pool-section-title">Fee/TVL Ratio</div>
+          <div class="pool-time-grid">
+            <div class="pool-time-box"><span>24H</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h24'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h24'), 24, formatRatioPercent)}</em></div>
+            <div class="pool-time-box"><span>12H*</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h12'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h12'), 12, formatRatioPercent)}</em></div>
+            <div class="pool-time-box"><span>6H</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h6'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h6'), 6, formatRatioPercent)}</em></div>
+            <div class="pool-time-box"><span>4H*</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h4'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h4'), 4, formatRatioPercent)}</em></div>
+            <div class="pool-time-box"><span>2H*</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h2'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h2'), 2, formatRatioPercent)}</em></div>
+            <div class="pool-time-box"><span>1H</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h1'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h1'), 1, formatRatioPercent)}</em></div>
+          </div>
+        </div>
+
+        <div class="pool-section">
+          <div class="pool-section-title">Total Volume</div>
+          <div class="pool-time-grid volume">
+            <div class="pool-time-box"><span>24H</span><strong>${formatCompact(estimateWindowVolume(pool, 24))}</strong><em>${formatHourlyMetric(estimateWindowVolume(pool, 24), 24)}</em></div>
+            <div class="pool-time-box"><span>6H</span><strong>${formatCompact(estimateWindowVolume(pool, 6))}</strong><em>${formatHourlyMetric(estimateWindowVolume(pool, 6), 6)}</em></div>
+            <div class="pool-time-box"><span>1H</span><strong>${formatCompact(estimateWindowVolume(pool, 1))}</strong><em>${formatHourlyMetric(estimateWindowVolume(pool, 1), 1)}</em></div>
+          </div>
+        </div>
+
+        <div class="lookup-status">Цена из выбранного пула уже перенесена в калькулятор. Текущая сторона депозита: <strong>${pool.depositTokenSymbol}</strong>. ${enrichNote} Значения со звёздочкой считаются как прокси из ближайших доступных окон API.</div>
+      `;
+    }
+
+    function updatePoolInState(poolId, patch) {
+      const index = state.discoveredPools.findIndex((pool) => pool.id === poolId);
+      if (index === -1) return;
+      state.discoveredPools[index] = { ...state.discoveredPools[index], ...patch };
+    }
+
+    async function tryEnrichSelectedPool(poolId) {
+      const pool = state.discoveredPools.find((item) => item.id === poolId);
+      if (!pool || pool.onchainLoaded) return;
+
+      const requestId = ++state.enrichRequestId;
+      updatePoolInState(poolId, { enrichStatus: 'loading' });
+      if (state.selectedPoolId === poolId) {
+        els.lookupStatus.textContent = `Найдено ${state.discoveredPools.length} пул(ов). Дотягиваю onchain-метаданные по выбранному пулу (tick, spacing, fee)...`;
+        renderSelectedPool();
+        renderMintPreview(buildPositions(getInputs()).rows);
+        renderDiscoveredPools();
+      }
+
+      try {
+        const poolAddress = ethers.getAddress(pool.poolAddress);
+        const [token0Result, token1Result, feeResult, tickSpacingResult, slot0Result] = await Promise.all([
+          callView(poolAddress, poolInterface, 'token0'),
+          callView(poolAddress, poolInterface, 'token1'),
+          callView(poolAddress, poolInterface, 'fee'),
+          callView(poolAddress, poolInterface, 'tickSpacing'),
+          callView(poolAddress, poolInterface, 'slot0')
+        ]);
+
+        if (requestId !== state.enrichRequestId) return;
+
+        const token0Address = token0Result[0];
+        const token1Address = token1Result[0];
+        const normalizedInput = pool.inputTokenAddress.toLowerCase();
+        const inputIsToken0 = token0Address.toLowerCase() === normalizedInput;
+        const depositTokenAddress = inputIsToken0 ? token1Address : token0Address;
+        const inputMeta = await fetchTokenMeta(pool.inputTokenAddress).catch(() => ({
+          address: pool.inputTokenAddress,
+          symbol: pool.inputTokenSymbol,
+          decimals: Number.isFinite(pool.token0Decimals) ? pool.token0Decimals : 18,
+          name: pool.inputTokenSymbol
+        }));
+        const depositMeta = COMMON_QUOTES.find((quote) => quote.address.toLowerCase() === depositTokenAddress.toLowerCase())
+          ? {
+              address: depositTokenAddress,
+              symbol: COMMON_QUOTES.find((quote) => quote.address.toLowerCase() === depositTokenAddress.toLowerCase()).symbol,
+              decimals: COMMON_QUOTES.find((quote) => quote.address.toLowerCase() === depositTokenAddress.toLowerCase()).decimals
+            }
+          : await fetchTokenMeta(depositTokenAddress).catch(() => ({
+              address: depositTokenAddress,
+              symbol: pool.depositTokenSymbol || 'UNKNOWN',
+              decimals: 18,
+              name: pool.depositTokenSymbol || 'UNKNOWN'
+            }));
+
+        const token0Decimals = token0Address.toLowerCase() === normalizedInput ? inputMeta.decimals : depositMeta.decimals;
+        const token1Decimals = token1Address.toLowerCase() === normalizedInput ? inputMeta.decimals : depositMeta.decimals;
+        const targetPrice = computeReadablePrice({
+          sqrtPriceX96: slot0Result[0],
+          token0Decimals,
+          token1Decimals,
+          token0Address,
+          token1Address,
+          targetAddress: pool.inputTokenAddress
+        }) || pool.targetPrice;
+
+        const fee = Number(feeResult[0]);
+        const updatedPool = {
+          token0Address,
+          token1Address,
+          token0Decimals,
+          token1Decimals,
+          fee: Number.isFinite(fee) && fee > 0 ? fee : pool.fee,
+          tickSpacing: Number(tickSpacingResult[0]),
+          tick: Number(slot0Result[1]),
+          targetPrice,
+          inputTokenSymbol: inputMeta.symbol,
+          depositTokenSymbol: depositMeta.symbol,
+          quoteSymbol: depositMeta.symbol,
+          onchainLoaded: true,
+          enrichStatus: 'done'
+        };
+
+        const feeTvl = buildFeeTvlSeries({
+          ...pool,
+          ...updatedPool
+        });
+
+        updatePoolInState(poolId, {
+          ...updatedPool,
+          feeTvl24h: feeTvl.h24,
+          feeTvl12h: feeTvl.h12,
+          feeTvl6h: feeTvl.h6,
+          feeTvl4h: feeTvl.h4,
+          feeTvl2h: feeTvl.h2,
+          feeTvl1h: feeTvl.h1
+        });
+      } catch (error) {
+        if (requestId !== state.enrichRequestId) return;
+        updatePoolInState(poolId, { enrichStatus: 'failed' });
+      } finally {
+        if (state.selectedPoolId === poolId) {
+          renderSelectedPool();
+          renderDiscoveredPools();
+          renderMintPreview(buildPositions(getInputs()).rows);
+          if (getSelectedPool()?.onchainLoaded) {
+            els.lookupStatus.textContent = `Найдено ${state.discoveredPools.length} пул(ов). Onchain-метаданные по выбранному пулу подгружены.`;
+          } else {
+            els.lookupStatus.textContent = `Найдено ${state.discoveredPools.length} пул(ов). Для выбранного пула onchain недоступен, но карточка остаётся в screener-режиме с API-метриками и fee fallback.`;
+          }
+        }
+      }
+    }
+
+    function selectPool(poolId) {
+      state.selectedPoolId = poolId;
+      const selectedPool = getSelectedPool();
+
+      if (selectedPool && selectedPool.targetPrice && Number.isFinite(selectedPool.targetPrice)) {
+        els.price.value = selectedPool.targetPrice < 1
+          ? selectedPool.targetPrice.toFixed(6)
+          : selectedPool.targetPrice.toFixed(4);
+      }
+
+      renderSelectedPool();
+      renderDiscoveredPools();
+      render();
+
+      if (selectedPool && !selectedPool.onchainLoaded) {
+        tryEnrichSelectedPool(poolId);
+      }
+    }
+
+    function renderDiscoveredPools() {
+      if (!state.discoveredPools.length) {
+        els.lookupResults.innerHTML = '';
+        updatePoolsCounter(0, 0);
+        return;
+      }
+
+      const visiblePools = sortPools(applyTokenAggregation(applyPoolFilters(state.discoveredPools)));
+
+      if (!visiblePools.length) {
+        els.lookupResults.innerHTML = '';
+        updatePoolsCounter(0, state.discoveredPools.length);
+        els.lookupStatus.textContent = 'Пулы найдены, но текущие фильтры их отсекли. Ослабь Min/Max.';
+        return;
+      }
+
+      const aggregationLabel = els.bestFeeTvlOnly.checked
+        ? ' Режим: лучший Fee/TVL пул на токен.'
+        : els.topTvlOnly.checked
+          ? ' Режим: топовый TVL пул на токен.'
+          : '';
+      updatePoolsCounter(visiblePools.length, state.discoveredPools.length);
+      els.lookupStatus.textContent = `Показано ${visiblePools.length} из ${state.discoveredPools.length} пул(ов) после сортировки и фильтров. Score и Fee/TVL сейчас смотрят на окно ${els.feeTvlWindow.value.replace('h', '')}ч.${aggregationLabel}`;
+
+      els.lookupResults.innerHTML = visiblePools.map((pool) => `
+        <article class="pool-card${pool.id === state.selectedPoolId ? ' active' : ''}">
+          <div class="pool-card-top">
+            <div>
+              <div class="pool-dex">${pool.dex} · ${formatPoolVersion(pool)}</div>
+              <div class="pool-pair">${pool.pairLabel}</div>
+            </div>
+            <div class="badge">Fee ${formatFeeBadge(pool)}</div>
+          </div>
+
+          <div class="pool-metrics">
+            <div class="pool-metric">
+              <span>MCAP / FDV</span>
+              <strong>${formatCompact(pool.marketCap)} / ${formatCompact(pool.fdv)}</strong>
+            </div>
+            <div class="pool-metric">
+              <span>Age</span>
+              <strong>${formatAgeLabel(pool.poolCreatedAt)}</strong>
+            </div>
+            <div class="pool-metric">
+              <span>Base Fee</span>
+              <strong>${Number.isFinite(getPoolFeePercent(pool)) ? formatPct(getPoolFeePercent(pool)) : '—'}</strong>
+            </div>
+            <div class="pool-metric">
+              <span>Liquidity</span>
+              <strong>${formatCompact(pool.liquidity)}</strong>
+            </div>
+            <div class="pool-metric">
+              <span>Volume 24ч</span>
+              <strong>${pool.volume24h ? formatCompact(pool.volume24h) : '—'}</strong>
+            </div>
+            <div class="pool-metric">
+              <span>Fees 24ч</span>
+              <strong>${formatCompact(getEstimatedFees(pool, 24))}</strong>
+            </div>
+            <div class="pool-metric">
+              <span>Fee/TVL ${els.feeTvlWindow.value.replace('h', '')}ч</span>
+              <strong>${formatFeeTvlValue(pool)}</strong>
+            </div>
+            <div class="pool-metric">
+              <span>Txns 24ч</span>
+              <strong>${Number.isFinite(pool.txns24h) ? pool.txns24h : '—'}</strong>
+            </div>
+            <div class="pool-metric">
+              <span>Buy flow 24ч</span>
+              <strong>${formatFlowRatio(pool.buys24h, pool.sells24h)}</strong>
+            </div>
+            <div class="pool-metric">
+              <span>Цена токена</span>
+              <strong>${pool.targetPrice ? `${formatCompact(pool.targetPrice)} ${pool.quoteSymbol}` : '—'}</strong>
+            </div>
+            <div class="pool-metric">
+              <span>Tick / spacing</span>
+              <strong>${pool.poolVersion === 'v2' ? 'V2 пул' : pool.enrichStatus === 'loading' ? 'обновляю...' : pool.onchainLoaded ? `${pool.tick} / ${pool.tickSpacing}` : 'ожидает onchain'}</strong>
+            </div>
+            <div class="pool-metric">
+              <span>Pool</span>
+              <strong>${pool.poolAddress}</strong>
+            </div>
+          </div>
+
+          <div class="pool-section">
+            <div class="pool-section-title">Fee/TVL Ratio</div>
+            <div class="pool-time-grid">
+              <div class="pool-time-box"><span>24H</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h24'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h24'), 24, formatRatioPercent)}</em></div>
+              <div class="pool-time-box"><span>12H*</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h12'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h12'), 12, formatRatioPercent)}</em></div>
+              <div class="pool-time-box"><span>6H</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h6'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h6'), 6, formatRatioPercent)}</em></div>
+              <div class="pool-time-box"><span>4H*</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h4'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h4'), 4, formatRatioPercent)}</em></div>
+              <div class="pool-time-box"><span>2H*</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h2'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h2'), 2, formatRatioPercent)}</em></div>
+              <div class="pool-time-box"><span>1H</span><strong>${formatRatioPercent(getFeeTvlMetric(pool, 'h1'))}</strong><em>${formatHourlyMetric(getFeeTvlMetric(pool, 'h1'), 1, formatRatioPercent)}</em></div>
+            </div>
+          </div>
+
+          <div class="pool-section">
+            <div class="pool-section-title">Total Volume</div>
+            <div class="pool-time-grid volume">
+              <div class="pool-time-box"><span>24H</span><strong>${formatCompact(estimateWindowVolume(pool, 24))}</strong><em>${formatHourlyMetric(estimateWindowVolume(pool, 24), 24)}</em></div>
+              <div class="pool-time-box"><span>6H</span><strong>${formatCompact(estimateWindowVolume(pool, 6))}</strong><em>${formatHourlyMetric(estimateWindowVolume(pool, 6), 6)}</em></div>
+              <div class="pool-time-box"><span>1H</span><strong>${formatCompact(estimateWindowVolume(pool, 1))}</strong><em>${formatHourlyMetric(estimateWindowVolume(pool, 1), 1)}</em></div>
+            </div>
+          </div>
+
+          <div class="pool-actions">
+            <button class="pool-select${pool.id === state.selectedPoolId ? ' active' : ''}" type="button" data-pool-id="${pool.id}">
+              ${pool.id === state.selectedPoolId ? 'Выбран' : 'Выбрать пул'}
+            </button>
+          </div>
+        </article>
+      `).join('');
+
+      els.lookupResults.querySelectorAll('.pool-select').forEach((button) => {
+        button.addEventListener('click', () => {
+          selectPool(button.dataset.poolId);
+        });
+      });
+    }
+
+    async function callView(address, iface, method, args = []) {
+      const data = iface.encodeFunctionData(method, args);
+      let lastError = null;
+
+      for (const provider of providers) {
+        try {
+          const raw = await provider.call({ to: address, data });
+          return iface.decodeFunctionResult(method, raw);
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      throw lastError || new Error('rpc call failed');
+    }
+
+    async function fetchTokenMeta(address) {
+      const [symbolResult, decimalsResult, nameResult] = await Promise.all([
+        callView(address, erc20Interface, 'symbol').catch(() => ['UNKNOWN']),
+        callView(address, erc20Interface, 'decimals').catch(() => [18]),
+        callView(address, erc20Interface, 'name').catch(() => ['Unknown Token'])
+      ]);
+
+      return {
+        address,
+        symbol: symbolResult[0],
+        decimals: Number(decimalsResult[0]),
+        name: nameResult[0]
+      };
+    }
+
+    function tryGetAddress(value) {
+      try {
+        return ethers.getAddress(value);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function getPairLabels(pair) {
+      return Array.isArray(pair?.labels)
+        ? pair.labels.map((label) => String(label || '').toLowerCase())
+        : [];
+    }
+
+    function parseFeePercentFromText(value) {
+      const match = String(value || '').match(/(\d+(?:\.\d+)?)\s*%/);
+
+      if (!match) {
+        return null;
+      }
+
+      const feePercent = Number(match[1]);
+      return Number.isFinite(feePercent) ? feePercent : null;
+    }
+
+    function feePercentToUnits(feePercent) {
+      const numericFeePercent = Number(feePercent);
+      return Number.isFinite(numericFeePercent) && numericFeePercent > 0
+        ? Math.round(numericFeePercent * 10_000)
+        : null;
+    }
+
+    function detectPoolVersion(pair, { tickSpacing = null, geckoMeta = null } = {}) {
+      const labels = getPairLabels(pair);
+      const geckoDexId = String(geckoMeta?.dexId || '').toLowerCase();
+
+      if (labels.includes('v2')) {
+        return 'v2';
+      }
+
+      if (labels.includes('v3')) {
+        return 'v3';
+      }
+
+      if (labels.includes('v4')) {
+        return 'v4';
+      }
+
+      if (Number.isFinite(Number(tickSpacing)) && Number(tickSpacing) > 0) {
+        return 'v3';
+      }
+
+      if (geckoDexId.includes('-v2-')) {
+        return 'v2';
+      }
+
+      if (geckoDexId.includes('-v3-')) {
+        return 'v3';
+      }
+
+      if (geckoDexId.includes('-v4-')) {
+        return 'v4';
+      }
+
+      return null;
+    }
+
+    function inferPoolFee(pair, { geckoMeta = null, directFee = null, tickSpacing = null } = {}) {
+      if (Number.isFinite(Number(directFee)) && Number(directFee) > 0) {
+        return Number(directFee);
+      }
+
+      if (Number.isFinite(Number(geckoMeta?.feePercent)) && Number(geckoMeta.feePercent) > 0) {
+        return feePercentToUnits(geckoMeta.feePercent);
+      }
+
+      const labels = getPairLabels(pair);
+      const dexId = String(pair?.dexId || '').toLowerCase();
+      const geckoDexId = String(geckoMeta?.dexId || '').toLowerCase();
+      const poolNameFeePercent = parseFeePercentFromText(geckoMeta?.poolName);
+
+      if (Number.isFinite(poolNameFeePercent) && poolNameFeePercent > 0) {
+        return feePercentToUnits(poolNameFeePercent);
+      }
+
+      if (labels.includes('v2') || geckoDexId.includes('-v2-')) {
+        if (dexId.includes('pancake')) {
+          return 2500;
+        }
+
+        if (dexId.includes('uniswap')) {
+          return 3000;
+        }
+      }
+
+      if (labels.includes('v3') || geckoDexId.includes('-v3-') || (Number.isFinite(Number(tickSpacing)) && Number(tickSpacing) > 0)) {
+        const spacingToFee = dexId.includes('pancake')
+          ? { 1: 100, 10: 500, 50: 2500, 200: 10000 }
+          : { 1: 100, 10: 500, 60: 3000, 200: 10000 };
+        const inferredFee = spacingToFee[Number(tickSpacing)];
+        return Number.isFinite(inferredFee) ? inferredFee : null;
+      }
+
+      return null;
+    }
+
+    function buildTokenMetaHint(address, pairs = []) {
+      const normalizedAddress = tryGetAddress(address);
+      const quoteMatch = COMMON_QUOTES.find((quote) => quote.address.toLowerCase() === normalizedAddress?.toLowerCase());
+
+      if (quoteMatch) {
+        return {
+          address: quoteMatch.address,
+          symbol: quoteMatch.symbol,
+          decimals: quoteMatch.decimals,
+          name: quoteMatch.symbol
+        };
+      }
+
+      for (const pair of pairs) {
+        if (pair?.baseToken?.address?.toLowerCase?.() === normalizedAddress?.toLowerCase()) {
+          return {
+            address: normalizedAddress,
+            symbol: pair.baseToken.symbol || 'UNKNOWN',
+            decimals: 18,
+            name: pair.baseToken.name || pair.baseToken.symbol || 'Unknown Token'
+          };
+        }
+
+        if (pair?.quoteToken?.address?.toLowerCase?.() === normalizedAddress?.toLowerCase()) {
+          return {
+            address: normalizedAddress,
+            symbol: pair.quoteToken.symbol || 'UNKNOWN',
+            decimals: 18,
+            name: pair.quoteToken.name || pair.quoteToken.symbol || 'Unknown Token'
+          };
+        }
+      }
+
+      return {
+        address: normalizedAddress || ethers.ZeroAddress,
+        symbol: 'UNKNOWN',
+        decimals: 18,
+        name: 'Unknown Token'
+      };
+    }
+
+    async function resolveTokenMeta(address, pairs = []) {
+      const normalizedAddress = ethers.getAddress(address);
+      const hint = buildTokenMetaHint(normalizedAddress, pairs);
+
+      try {
+        const meta = await fetchTokenMeta(normalizedAddress);
+        const symbol = meta.symbol && meta.symbol !== 'UNKNOWN' ? meta.symbol : hint.symbol;
+        const name = meta.name && meta.name !== 'Unknown Token' ? meta.name : hint.name;
+        return {
+          address: normalizedAddress,
+          symbol,
+          decimals: Number.isFinite(Number(meta.decimals)) ? Number(meta.decimals) : hint.decimals,
+          name
+        };
+      } catch (error) {
+        return hint;
+      }
+    }
+
+    function pickMarketInputToken(pair) {
+      const baseAddress = tryGetAddress(pair?.baseToken?.address);
+      const quoteAddress = tryGetAddress(pair?.quoteToken?.address);
+      const baseIsCommonQuote = COMMON_QUOTES.some((quote) => quote.address.toLowerCase() === baseAddress?.toLowerCase());
+      const quoteIsCommonQuote = COMMON_QUOTES.some((quote) => quote.address.toLowerCase() === quoteAddress?.toLowerCase());
+
+      if (!baseAddress && !quoteAddress) {
+        return null;
+      }
+
+      if (baseIsCommonQuote && !quoteIsCommonQuote) {
+        return quoteAddress ? { ...pair.quoteToken, address: quoteAddress } : null;
+      }
+
+      if (!baseIsCommonQuote && quoteIsCommonQuote) {
+        return baseAddress ? { ...pair.baseToken, address: baseAddress } : null;
+      }
+
+      if (baseAddress) {
+        return { ...pair.baseToken, address: baseAddress };
+      }
+
+      return quoteAddress ? { ...pair.quoteToken, address: quoteAddress } : null;
+    }
+
+    function getSelectedQuotes() {
+      if (els.quoteFilter.value === 'all') {
+        return COMMON_QUOTES;
+      }
+
+      return COMMON_QUOTES.filter((quote) => quote.symbol === els.quoteFilter.value);
+    }
+
+    function computeReadablePrice({ sqrtPriceX96, token0Decimals, token1Decimals, token0Address, token1Address, targetAddress }) {
+      const sqrt = Number(ethers.formatUnits(sqrtPriceX96, 96));
+      const priceToken1PerToken0 = sqrt * sqrt * (10 ** (token0Decimals - token1Decimals));
+
+      if (!Number.isFinite(priceToken1PerToken0) || priceToken1PerToken0 <= 0) {
+        return null;
+      }
+
+      const normalizedTarget = targetAddress.toLowerCase();
+      const isTargetToken0 = token0Address.toLowerCase() === normalizedTarget;
+
+      if (isTargetToken0) {
+        return priceToken1PerToken0;
+      }
+
+      return 1 / priceToken1PerToken0;
+    }
+
+    function normalizePairKey(pair) {
+      return String(pair?.pairAddress || pair?.poolAddress || pair?.id || '').toLowerCase();
+    }
+
+    function inferPoolLabels({ dexId = '', poolName = '', labels = [] } = {}) {
+      const normalizedDexId = String(dexId || '').toLowerCase();
+      const normalizedPoolName = String(poolName || '').toLowerCase();
+      const set = new Set(Array.isArray(labels) ? labels.map((label) => String(label || '').toLowerCase()) : []);
+
+      if (normalizedDexId.includes('v2') || normalizedPoolName.includes(' v2')) {
+        set.add('v2');
+      }
+
+      if (normalizedDexId.includes('v3') || normalizedPoolName.includes(' v3')) {
+        set.add('v3');
+      }
+
+      if (normalizedDexId.includes('v4') || normalizedPoolName.includes(' v4')) {
+        set.add('v4');
+      }
+
+      return [...set];
+    }
+
+    function buildPairCreatedAtTimestamp(value) {
+      const timestamp = typeof value === 'number' ? value : Date.parse(value);
+      return Number.isFinite(timestamp) ? timestamp : null;
+    }
+
+    function mergePairRecords(primaryPair, secondaryPair) {
+      if (!primaryPair) return secondaryPair;
+      if (!secondaryPair) return primaryPair;
+
+      const primaryLabels = Array.isArray(primaryPair.labels) ? primaryPair.labels : [];
+      const secondaryLabels = Array.isArray(secondaryPair.labels) ? secondaryPair.labels : [];
+
+      return {
+        ...secondaryPair,
+        ...primaryPair,
+        labels: [...new Set([...primaryLabels, ...secondaryLabels])],
+        geckoMetaHint: primaryPair.geckoMetaHint || secondaryPair.geckoMetaHint || null,
+        dexName: primaryPair.dexName || secondaryPair.dexName || ''
+      };
+    }
+
+    function mapGeckoPoolToPair(pool, includedMap, tokenAddress) {
+      const baseTokenId = pool?.relationships?.base_token?.data?.id;
+      const quoteTokenId = pool?.relationships?.quote_token?.data?.id;
+      const dexId = pool?.relationships?.dex?.data?.id || '';
+      const baseToken = includedMap.get(baseTokenId);
+      const quoteToken = includedMap.get(quoteTokenId);
+      const dex = includedMap.get(dexId);
+      const attributes = pool?.attributes || {};
+
+      if (!baseToken?.attributes?.address || !quoteToken?.attributes?.address || !attributes.address) {
+        return null;
+      }
+
+      return {
+        chainId: 'bsc',
+        dexId,
+        dexName: dex?.attributes?.name || '',
+        pairAddress: attributes.address,
+        labels: inferPoolLabels({ dexId, poolName: attributes.name }),
+        baseToken: {
+          address: baseToken.attributes.address,
+          symbol: baseToken.attributes.symbol,
+          name: baseToken.attributes.name
+        },
+        quoteToken: {
+          address: quoteToken.attributes.address,
+          symbol: quoteToken.attributes.symbol,
+          name: quoteToken.attributes.name
+        },
+        liquidity: {
+          usd: Number(attributes.reserve_in_usd || 0),
+          base: null,
+          quote: null
+        },
+        volume: {
+          h24: Number(attributes.volume_usd?.h24 || 0),
+          h6: Number(attributes.volume_usd?.h6 || 0),
+          h1: Number(attributes.volume_usd?.h1 || 0)
+        },
+        txns: {
+          h24: {
+            buys: Number(attributes.transactions?.h24?.buys || 0),
+            sells: Number(attributes.transactions?.h24?.sells || 0)
+          },
+          h6: {
+            buys: Number(attributes.transactions?.h6?.buys || 0),
+            sells: Number(attributes.transactions?.h6?.sells || 0)
+          },
+          h1: {
+            buys: Number(attributes.transactions?.h1?.buys || 0),
+            sells: Number(attributes.transactions?.h1?.sells || 0)
+          }
+        },
+        priceChange: {
+          h24: Number(attributes.price_change_percentage?.h24 ?? NaN),
+          h6: Number(attributes.price_change_percentage?.h6 ?? NaN),
+          h1: Number(attributes.price_change_percentage?.h1 ?? NaN)
+        },
+        priceUsd: Number(attributes.token_price_usd || 0),
+        marketCap: Number(attributes.market_cap_usd || attributes.fdv_usd || 0),
+        fdv: Number(attributes.fdv_usd || attributes.market_cap_usd || 0),
+        pairCreatedAt: buildPairCreatedAtTimestamp(attributes.pool_created_at),
+        geckoMetaHint: {
+          feePercent: parseFeePercentFromText(attributes.name),
+          poolName: attributes.name || '',
+          dexId: String(dexId || ''),
+          dexName: dex?.attributes?.name || '',
+          marketCap: Number(attributes.market_cap_usd || attributes.fdv_usd || 0),
+          fdv: Number(attributes.fdv_usd || attributes.market_cap_usd || 0),
+          volume24h: Number(attributes.volume_usd?.h24 || 0),
+          volume6h: Number(attributes.volume_usd?.h6 || 0),
+          volume1h: Number(attributes.volume_usd?.h1 || 0),
+          priceChange1h: Number(attributes.price_change_percentage?.h1 ?? NaN),
+          priceChange6h: Number(attributes.price_change_percentage?.h6 ?? NaN),
+          priceChange24h: Number(attributes.price_change_percentage?.h24 ?? NaN),
+          txns1h: Number(attributes.transactions?.h1?.buys || 0) + Number(attributes.transactions?.h1?.sells || 0),
+          txns6h: Number(attributes.transactions?.h6?.buys || 0) + Number(attributes.transactions?.h6?.sells || 0),
+          txns24h: Number(attributes.transactions?.h24?.buys || 0) + Number(attributes.transactions?.h24?.sells || 0),
+          buys1h: Number(attributes.transactions?.h1?.buys || 0),
+          buys6h: Number(attributes.transactions?.h6?.buys || 0),
+          buys24h: Number(attributes.transactions?.h24?.buys || 0),
+          sells1h: Number(attributes.transactions?.h1?.sells || 0),
+          sells6h: Number(attributes.transactions?.h6?.sells || 0),
+          sells24h: Number(attributes.transactions?.h24?.sells || 0),
+          reserveUsd: Number(attributes.reserve_in_usd || 0),
+          poolCreatedAt: attributes.pool_created_at || null
+        },
+        requestedTokenAddress: tokenAddress
+      };
+    }
+
+    async function fetchGeckoTokenPools(tokenAddress) {
+      const response = await fetch(`${GECKO_TOKEN_POOLS_API}${tokenAddress}/pools?page=1&include=base_token,quote_token,dex`);
+
+      if (!response.ok) {
+        throw new Error('gecko token pools unavailable');
+      }
+
+      const payload = await response.json();
+      const data = Array.isArray(payload?.data) ? payload.data : [];
+      const includedMap = new Map((Array.isArray(payload?.included) ? payload.included : []).map((item) => [item.id, item]));
+
+      return data
+        .map((pool) => mapGeckoPoolToPair(pool, includedMap, tokenAddress))
+        .filter(Boolean);
+    }
+
+    async function fetchDexPairs(tokenAddress) {
+      const [dexTokenPairs, dexSearchPairs, geckoPairs] = await Promise.all([
+        fetch(`${DEX_SCREENER_API}${tokenAddress}`)
+          .then(async (response) => {
+            if (!response.ok) {
+              throw new Error('dex screener unavailable');
+            }
+            const payload = await response.json();
+            return Array.isArray(payload.pairs) ? payload.pairs : [];
+          })
+          .catch(() => []),
+        fetch(`${DEX_SCREENER_SEARCH_API}${encodeURIComponent(tokenAddress)}`)
+          .then(async (response) => {
+            if (!response.ok) {
+              throw new Error('dex screener search unavailable');
+            }
+            const payload = await response.json();
+            return Array.isArray(payload.pairs) ? payload.pairs : [];
+          })
+          .catch(() => []),
+        fetchGeckoTokenPools(tokenAddress).catch(() => [])
+      ]);
+
+      const deduped = new Map();
+
+      [...dexTokenPairs, ...dexSearchPairs, ...geckoPairs].forEach((pair) => {
+        const key = normalizePairKey(pair);
+
+        if (!key) {
+          return;
+        }
+
+        deduped.set(key, mergePairRecords(pair, deduped.get(key)));
+      });
+
+      const mergedPairs = [...deduped.values()];
+
+      if (!mergedPairs.length) {
+        throw new Error('no dex pairs found');
+      }
+
+      return mergedPairs;
+    }
+
+    async function fetchGlobalDexPairs() {
+      const queries = ['pancakeswap', 'uniswap', 'usdt', 'usdc', 'wbnb', 'bnb'];
+      const deduped = new Map();
+
+      for (const query of queries) {
+        let response;
+
+        try {
+          response = await fetch(`${DEX_SCREENER_SEARCH_API}${encodeURIComponent(query)}`);
+        } catch (error) {
+          continue;
+        }
+
+        if (!response.ok) {
+          continue;
+        }
+
+        const payload = await response.json();
+        const pairs = Array.isArray(payload.pairs) ? payload.pairs : [];
+
+        for (const pair of pairs) {
+          if (pair?.pairAddress && pair.chainId === 'bsc' && ((pair.dexId || '').includes('pancake') || (pair.dexId || '').includes('uniswap'))) {
+            deduped.set(pair.pairAddress.toLowerCase(), pair);
+          }
+        }
+      }
+
+      return [...deduped.values()];
+    }
+
+    async function fetchGeckoPoolMeta(poolAddress) {
+      const response = await fetch(`${GECKO_POOL_API}${poolAddress}`);
+
+      if (!response.ok) {
+        throw new Error('gecko pool unavailable');
+      }
+
+      const payload = await response.json();
+      const attributes = payload?.data?.attributes;
+      const dexRelationshipId = payload?.data?.relationships?.dex?.data?.id;
+
+      if (!attributes) {
+        throw new Error('gecko pool empty');
+      }
+
+      return {
+        feePercent: Number(attributes.pool_fee_percentage || 0),
+        poolName: attributes.pool_name || attributes.name || '',
+        dexId: String(dexRelationshipId || ''),
+        dexName: payload?.included?.find?.((item) => item.id === dexRelationshipId)?.attributes?.name || '',
+        marketCap: Number(attributes.market_cap_usd || attributes.fdv_usd || 0),
+        fdv: Number(attributes.fdv_usd || attributes.market_cap_usd || 0),
+        volume24h: Number(attributes.volume_usd?.h24 || 0),
+        volume6h: Number(attributes.volume_usd?.h6 || 0),
+        volume1h: Number(attributes.volume_usd?.h1 || 0),
+        priceChange1h: Number(attributes.price_change_percentage?.h1 ?? NaN),
+        priceChange6h: Number(attributes.price_change_percentage?.h6 ?? NaN),
+        priceChange24h: Number(attributes.price_change_percentage?.h24 ?? NaN),
+        txns1h: Number(attributes.transactions?.h1?.buys || 0) + Number(attributes.transactions?.h1?.sells || 0),
+        txns6h: Number(attributes.transactions?.h6?.buys || 0) + Number(attributes.transactions?.h6?.sells || 0),
+        txns24h: Number(attributes.transactions?.h24?.buys || 0) + Number(attributes.transactions?.h24?.sells || 0),
+        buys1h: Number(attributes.transactions?.h1?.buys || 0),
+        buys6h: Number(attributes.transactions?.h6?.buys || 0),
+        buys24h: Number(attributes.transactions?.h24?.buys || 0),
+        sells1h: Number(attributes.transactions?.h1?.sells || 0),
+        sells6h: Number(attributes.transactions?.h6?.sells || 0),
+        reserveUsd: Number(attributes.reserve_in_usd || 0),
+        sells24h: Number(attributes.transactions?.h24?.sells || 0)
+        ,
+        poolCreatedAt: attributes.pool_created_at || null,
+        lockedLiquidityPct: Number(attributes.locked_liquidity_percentage ?? NaN)
+      };
+    }
+
+    async function enrichDexPair(pair, inputTokenAddress, tokenMeta) {
+      const poolAddress = tryGetAddress(pair.pairAddress);
+
+      if (!poolAddress) {
+        throw new Error('invalid pool address for onchain enrich');
+      }
+
+      const geckoMeta = pair.geckoMetaHint || await fetchGeckoPoolMeta(poolAddress).catch(() => null);
+      const [token0Result, token1Result, feeResult, tickSpacingResult, liquidityResult, slot0Result] = await Promise.all([
+        callView(poolAddress, poolInterface, 'token0'),
+        callView(poolAddress, poolInterface, 'token1'),
+        callView(poolAddress, poolInterface, 'fee'),
+        callView(poolAddress, poolInterface, 'tickSpacing'),
+        callView(poolAddress, poolInterface, 'liquidity'),
+        callView(poolAddress, poolInterface, 'slot0')
+      ]);
+
+      const token0Address = token0Result[0];
+      const token1Address = token1Result[0];
+      const inputToken = pair.baseToken.address.toLowerCase() === inputTokenAddress.toLowerCase() ? pair.baseToken : pair.quoteToken;
+      const depositToken = pair.baseToken.address.toLowerCase() === inputTokenAddress.toLowerCase() ? pair.quoteToken : pair.baseToken;
+      const depositTokenMeta = COMMON_QUOTES.find((quote) => quote.address.toLowerCase() === depositToken.address.toLowerCase()) || { decimals: 18 };
+      const pairLabel = `${pair.baseToken.symbol}/${pair.quoteToken.symbol}`;
+      const poolVersion = detectPoolVersion(pair, { tickSpacing: Number(tickSpacingResult[0]), geckoMeta });
+      const fee = inferPoolFee(pair, { geckoMeta, directFee: Number(feeResult[0]), tickSpacing: Number(tickSpacingResult[0]) });
+      const targetPrice = computeReadablePrice({
+        sqrtPriceX96: slot0Result[0],
+        token0Decimals: token0Address.toLowerCase() === inputTokenAddress.toLowerCase() ? tokenMeta.decimals : depositTokenMeta.decimals,
+        token1Decimals: token1Address.toLowerCase() === inputTokenAddress.toLowerCase() ? tokenMeta.decimals : depositTokenMeta.decimals,
+        token0Address,
+        token1Address,
+        targetAddress: inputTokenAddress
+      }) || Number(pair.priceUsd);
+
+      const enrichedPool = {
+        id: `${pair.dexId}-${poolAddress}`,
+        dex: getDexDisplayName(pair.dexId, pair.dexName),
+        dexId: pair.dexId,
+        poolVersion,
+        pairLabel,
+        quoteSymbol: depositToken.symbol,
+        fee,
+        tickSpacing: Number(tickSpacingResult[0]),
+        poolAddress,
+        targetPrice,
+        tick: Number(slot0Result[1]),
+        liquidity: Number(pair.liquidity?.usd || liquidityResult[0]),
+        reserveUsd: geckoMeta?.reserveUsd ?? Number(pair.liquidity?.usd || liquidityResult[0]),
+        liquidityBase: Number(pair.liquidity?.base || 0),
+        liquidityQuote: Number(pair.liquidity?.quote || 0),
+        volume24h: geckoMeta?.volume24h ?? Number(pair.volume?.h24 || 0),
+        volume6h: geckoMeta?.volume6h ?? Number(pair.volume?.h6 || 0),
+        volume1h: geckoMeta?.volume1h ?? Number(pair.volume?.h1 || 0),
+        priceChange1h: geckoMeta?.priceChange1h ?? Number(pair.priceChange?.h1 ?? NaN),
+        priceChange6h: geckoMeta?.priceChange6h ?? Number(pair.priceChange?.h6 ?? NaN),
+        priceChange24h: geckoMeta?.priceChange24h ?? Number(pair.priceChange?.h24 ?? NaN),
+        txns1h: geckoMeta?.txns1h ?? (Number(pair.txns?.h1?.buys || 0) + Number(pair.txns?.h1?.sells || 0)),
+        txns6h: geckoMeta?.txns6h ?? (Number(pair.txns?.h6?.buys || 0) + Number(pair.txns?.h6?.sells || 0)),
+        txns24h: geckoMeta?.txns24h ?? (Number(pair.txns?.h24?.buys || 0) + Number(pair.txns?.h24?.sells || 0)),
+        buys1h: geckoMeta?.buys1h ?? Number(pair.txns?.h1?.buys || 0),
+        buys6h: geckoMeta?.buys6h ?? Number(pair.txns?.h6?.buys || 0),
+        buys24h: geckoMeta?.buys24h ?? Number(pair.txns?.h24?.buys || 0),
+        sells1h: geckoMeta?.sells1h ?? Number(pair.txns?.h1?.sells || 0),
+        sells6h: geckoMeta?.sells6h ?? Number(pair.txns?.h6?.sells || 0),
+        sells24h: geckoMeta?.sells24h ?? Number(pair.txns?.h24?.sells || 0),
+        marketCap: geckoMeta?.marketCap ?? Number(pair.marketCap || pair.fdv || 0),
+        fdv: geckoMeta?.fdv ?? Number(pair.fdv || pair.marketCap || 0),
+        poolCreatedAt: geckoMeta?.poolCreatedAt ?? (pair.pairCreatedAt ? new Date(Number(pair.pairCreatedAt)).toISOString() : null),
+        lockedLiquidityPct: geckoMeta?.lockedLiquidityPct,
+        token0Address,
+        token1Address,
+        token0Decimals: token0Address.toLowerCase() === inputTokenAddress.toLowerCase() ? tokenMeta.decimals : depositTokenMeta.decimals,
+        token1Decimals: token1Address.toLowerCase() === inputTokenAddress.toLowerCase() ? tokenMeta.decimals : depositTokenMeta.decimals,
+        inputTokenAddress: ethers.getAddress(inputTokenAddress),
+        inputTokenSymbol: tokenMeta.symbol,
+        depositTokenSymbol: depositToken.symbol,
+        onchainLoaded: true,
+        enrichStatus: 'done'
+      };
+
+      const feeTvl = buildFeeTvlSeries(enrichedPool);
+
+      return {
+        ...enrichedPool,
+        feeTvl24h: feeTvl.h24,
+        feeTvl12h: feeTvl.h12,
+        feeTvl6h: feeTvl.h6,
+        feeTvl4h: feeTvl.h4,
+        feeTvl2h: feeTvl.h2,
+        feeTvl1h: feeTvl.h1
+      };
+    }
+
+    async function buildDexFallbackPair(pair, inputTokenAddress, tokenMeta) {
+      const inputIsBase = pair.baseToken.address.toLowerCase() === inputTokenAddress.toLowerCase();
+      const depositToken = inputIsBase ? pair.quoteToken : pair.baseToken;
+      const poolAddress = tryGetAddress(pair.pairAddress);
+      const geckoMeta = pair.geckoMetaHint || (poolAddress ? await fetchGeckoPoolMeta(poolAddress).catch(() => null) : null);
+      const [token0Result, token1Result, feeResult, tickSpacingResult, slot0Result] = poolAddress
+        ? await Promise.all([
+            callView(poolAddress, poolInterface, 'token0').catch(() => null),
+            callView(poolAddress, poolInterface, 'token1').catch(() => null),
+            callView(poolAddress, poolInterface, 'fee').catch(() => null),
+            callView(poolAddress, poolInterface, 'tickSpacing').catch(() => null),
+            callView(poolAddress, poolInterface, 'slot0').catch(() => null)
+          ])
+        : [null, null, null, null, null];
+      const token0Address = token0Result?.[0] ? ethers.getAddress(token0Result[0]) : ethers.ZeroAddress;
+      const token1Address = token1Result?.[0] ? ethers.getAddress(token1Result[0]) : ethers.ZeroAddress;
+      const normalizedInput = inputTokenAddress.toLowerCase();
+      const inputIsToken0 = token0Address !== ethers.ZeroAddress && token0Address.toLowerCase() === normalizedInput;
+      const inputIsToken1 = token1Address !== ethers.ZeroAddress && token1Address.toLowerCase() === normalizedInput;
+      const depositTokenAddress = inputIsToken0 ? token1Address : inputIsToken1 ? token0Address : ethers.ZeroAddress;
+      const knownQuote = COMMON_QUOTES.find((quote) => quote.address.toLowerCase() === depositTokenAddress.toLowerCase());
+      const depositMeta = knownQuote
+        ? { address: depositTokenAddress, symbol: knownQuote.symbol, decimals: knownQuote.decimals }
+        : depositTokenAddress !== ethers.ZeroAddress
+          ? await fetchTokenMeta(depositTokenAddress).catch(() => ({
+              address: depositTokenAddress,
+              symbol: depositToken.symbol,
+              decimals: 18,
+              name: depositToken.symbol
+            }))
+          : { address: ethers.ZeroAddress, symbol: depositToken.symbol, decimals: 18 };
+      const token0Decimals = inputIsToken0 ? tokenMeta.decimals : depositMeta.decimals;
+      const token1Decimals = inputIsToken1 ? tokenMeta.decimals : depositMeta.decimals;
+      const onchainLoaded = Boolean(slot0Result && tickSpacingResult && inputIsToken0 || slot0Result && tickSpacingResult && inputIsToken1);
+      const onchainTargetPrice = onchainLoaded
+        ? computeReadablePrice({
+            sqrtPriceX96: slot0Result[0],
+            token0Decimals,
+            token1Decimals,
+            token0Address,
+            token1Address,
+            targetAddress: inputTokenAddress
+          })
+        : null;
+      const directFee = feeResult ? Number(feeResult[0]) : null;
+      const poolVersion = detectPoolVersion(pair, { tickSpacing: tickSpacingResult ? Number(tickSpacingResult[0]) : null, geckoMeta });
+      const fee = inferPoolFee(pair, { geckoMeta, directFee, tickSpacing: tickSpacingResult ? Number(tickSpacingResult[0]) : null });
+
+      const fallbackPool = {
+        id: `${pair.dexId}-${pair.pairAddress}`,
+        dex: getDexDisplayName(pair.dexId, pair.dexName),
+        dexId: pair.dexId,
+        poolVersion,
+        pairLabel: `${pair.baseToken.symbol}/${pair.quoteToken.symbol}`,
+        quoteSymbol: depositToken.symbol,
+        fee,
+        tickSpacing: tickSpacingResult ? Number(tickSpacingResult[0]) : null,
+        poolAddress: poolAddress || pair.pairAddress,
+        targetPrice: onchainTargetPrice || Number(pair.priceUsd),
+        tick: slot0Result ? Number(slot0Result[1]) : null,
+        liquidity: Number(pair.liquidity?.usd || 0),
+        reserveUsd: geckoMeta?.reserveUsd ?? Number(pair.liquidity?.usd || 0),
+        liquidityBase: Number(pair.liquidity?.base || 0),
+        liquidityQuote: Number(pair.liquidity?.quote || 0),
+        volume24h: geckoMeta?.volume24h ?? Number(pair.volume?.h24 || 0),
+        volume6h: geckoMeta?.volume6h ?? Number(pair.volume?.h6 || 0),
+        volume1h: geckoMeta?.volume1h ?? Number(pair.volume?.h1 || 0),
+        priceChange1h: geckoMeta?.priceChange1h ?? Number(pair.priceChange?.h1 ?? NaN),
+        priceChange6h: geckoMeta?.priceChange6h ?? Number(pair.priceChange?.h6 ?? NaN),
+        priceChange24h: geckoMeta?.priceChange24h ?? Number(pair.priceChange?.h24 ?? NaN),
+        txns1h: geckoMeta?.txns1h ?? (Number(pair.txns?.h1?.buys || 0) + Number(pair.txns?.h1?.sells || 0)),
+        txns6h: geckoMeta?.txns6h ?? (Number(pair.txns?.h6?.buys || 0) + Number(pair.txns?.h6?.sells || 0)),
+        txns24h: geckoMeta?.txns24h ?? (Number(pair.txns?.h24?.buys || 0) + Number(pair.txns?.h24?.sells || 0)),
+        buys1h: geckoMeta?.buys1h ?? Number(pair.txns?.h1?.buys || 0),
+        buys6h: geckoMeta?.buys6h ?? Number(pair.txns?.h6?.buys || 0),
+        buys24h: geckoMeta?.buys24h ?? Number(pair.txns?.h24?.buys || 0),
+        sells1h: geckoMeta?.sells1h ?? Number(pair.txns?.h1?.sells || 0),
+        sells6h: geckoMeta?.sells6h ?? Number(pair.txns?.h6?.sells || 0),
+        sells24h: geckoMeta?.sells24h ?? Number(pair.txns?.h24?.sells || 0),
+        marketCap: geckoMeta?.marketCap ?? Number(pair.marketCap || pair.fdv || 0),
+        fdv: geckoMeta?.fdv ?? Number(pair.fdv || pair.marketCap || 0),
+        poolCreatedAt: geckoMeta?.poolCreatedAt ?? (pair.pairCreatedAt ? new Date(Number(pair.pairCreatedAt)).toISOString() : null),
+        lockedLiquidityPct: geckoMeta?.lockedLiquidityPct,
+        token0Address,
+        token1Address,
+        token0Decimals,
+        token1Decimals,
+        inputTokenAddress: ethers.getAddress(inputTokenAddress),
+        inputTokenSymbol: tokenMeta.symbol,
+        depositTokenSymbol: depositMeta.symbol,
+        quoteSymbol: depositMeta.symbol,
+        onchainLoaded,
+        enrichStatus: onchainLoaded ? 'done' : 'idle'
+      };
+
+      const feeTvl = buildFeeTvlSeries(fallbackPool);
+
+      return {
+        ...fallbackPool,
+        feeTvl24h: feeTvl.h24,
+        feeTvl12h: feeTvl.h12,
+        feeTvl6h: feeTvl.h6,
+        feeTvl4h: feeTvl.h4,
+        feeTvl2h: feeTvl.h2,
+        feeTvl1h: feeTvl.h1
+      };
+    }
+
+    function filterPairsByQuotes(pairs, quotes) {
+      if (els.quoteFilter.value === 'all') {
+        return pairs;
+      }
+
+      return pairs.filter((pair) =>
+        quotes.some((quote) => quote.address.toLowerCase() === pair?.baseToken?.address?.toLowerCase?.() || quote.address.toLowerCase() === pair?.quoteToken?.address?.toLowerCase?.())
+      );
+    }
+
+    async function discoverMarketPools(quotes) {
+      const marketPairs = filterPairsByQuotes(await fetchGlobalDexPairs(), quotes)
+        .sort((left, right) => (Number(right.liquidity?.usd || 0) + Number(right.volume?.h24 || 0)) - (Number(left.liquidity?.usd || 0) + Number(left.volume?.h24 || 0)))
+        .slice(0, 40);
+      const foundPools = [];
+
+      els.lookupStatus.textContent = 'Ищу пулы по рынку BNB Chain без привязки к одному контракту...';
+      els.lookupResults.innerHTML = '';
+      state.discoveredPools = [];
+      state.selectedPoolId = null;
+      state.discoveryMode = 'market';
+      renderSelectedPool();
+      renderMintPreview([]);
+
+      for (const pair of marketPairs) {
+        const inputToken = pickMarketInputToken(pair);
+
+        if (!inputToken?.address) {
+          continue;
+        }
+
+        const tokenMeta = await resolveTokenMeta(inputToken.address, [pair]);
+
+        try {
+          const enrichedPair = await enrichDexPair(pair, inputToken.address, tokenMeta);
+          foundPools.push(enrichedPair);
+        } catch (error) {
+          try {
+            foundPools.push(await buildDexFallbackPair(pair, inputToken.address, tokenMeta));
+          } catch (fallbackError) {
+            continue;
+          }
+        }
+      }
+
+      foundPools.sort((left, right) => scorePool(right) - scorePool(left));
+
+      if (!foundPools.length) {
+        els.lookupStatus.textContent = 'Рыночный скан не дал результатов. Попробуй ослабить фильтры или указать контракт токена.';
+        return;
+      }
+
+      state.discoveredPools = foundPools;
+      state.selectedPoolId = foundPools[0].id;
+      els.lookupStatus.textContent = `Рыночный скан нашёл ${foundPools.length} пул(ов) на BNB. Сортировка score сейчас использует Fee/TVL ${els.feeTvlWindow.value.replace('h', '')}ч.`;
+      renderDiscoveredPools();
+      renderSelectedPool();
+      selectPool(foundPools[0].id);
+    }
+
+    async function discoverPools() {
+      const rawAddress = els.tokenAddress.value.trim();
+      const quotes = getSelectedQuotes();
+
+      if (!rawAddress) {
+        try {
+          await discoverMarketPools(quotes);
+        } catch (error) {
+          els.lookupStatus.textContent = 'Не удалось выполнить рыночный скан без контракта токена.';
+          els.lookupResults.innerHTML = '';
+          state.discoveredPools = [];
+          state.selectedPoolId = null;
+          renderSelectedPool();
+          renderMintPreview([]);
+        }
+        return;
+      }
+
+      try {
+        const tokenAddress = ethers.getAddress(rawAddress);
+        const dexPairs = await fetchDexPairs(tokenAddress);
+        const candidatePairs = dexPairs.filter((pair) =>
+          pair.chainId === 'bsc'
+          && filterPairsByQuotes([pair], quotes).length > 0
+        );
+        const tokenMeta = await resolveTokenMeta(tokenAddress, candidatePairs.length ? candidatePairs : dexPairs);
+        const foundPools = [];
+
+        els.lookupStatus.textContent = `Ищу пулы для ${tokenMeta.symbol}...`;
+        els.lookupResults.innerHTML = '';
+        state.discoveredPools = [];
+        state.selectedPoolId = null;
+        state.discoveryMode = 'token';
+        renderSelectedPool();
+        renderMintPreview([]);
+
+        for (const pair of candidatePairs) {
+          try {
+            const enrichedPair = await enrichDexPair(pair, tokenAddress, tokenMeta);
+            foundPools.push(enrichedPair);
+          } catch (error) {
+            try {
+              foundPools.push(await buildDexFallbackPair(pair, tokenAddress, tokenMeta));
+            } catch (fallbackError) {
+              continue;
+            }
+          }
+        }
+
+        foundPools.sort((left, right) => scorePool(right) - scorePool(left));
+
+        if (!foundPools.length) {
+          els.lookupStatus.textContent = `Пулы для ${tokenMeta.symbol} не найдены. Я проверил DexScreener, поиск по адресу и GeckoTerminal, но не собрал ни одного валидного пула под текущие quote-фильтры.`;
+          return;
+        }
+
+        state.discoveredPools = foundPools;
+        state.selectedPoolId = foundPools[0].id;
+        els.lookupStatus.textContent = `Найдено ${foundPools.length} пул(ов) для ${tokenMeta.symbol}. Score сейчас учитывает Fee/TVL ${els.feeTvlWindow.value.replace('h', '')}ч, ликвидность, объём и onchain-подтверждение.`;
+        renderDiscoveredPools();
+        renderSelectedPool();
+        selectPool(foundPools[0].id);
+      } catch (error) {
+        els.lookupStatus.textContent = 'Не удалось найти пулы. Проверь адрес токена. Поиск теперь идёт сразу через DexScreener token/search и GeckoTerminal pools, а onchain нужен только для дополнительного подтверждения.';
+        els.lookupResults.innerHTML = '';
+        state.discoveredPools = [];
+        state.selectedPoolId = null;
+        renderSelectedPool();
+        renderMintPreview([]);
+      }
+    }
+
+    function render() {
+      const result = buildPositions(getInputs());
+      renderSummary(result.summary);
+      renderExplanation(result.rows);
+      renderMintPreview(result.rows);
+      renderPositions(result.rows);
+      renderTable(result.rows);
+    }
+
+    function buildCopyText() {
+      const result = buildPositions(getInputs());
+
+      return [
+        'BNB BitLadder',
+        `Spot: ${formatPrice(getInputs().price)}`,
+        `Capital: ${formatUsd(getInputs().capital)} USDT`,
+        `Target: -${result.summary.targetDropAbs}%`,
+        '',
+        ...result.rows.map((row) => [
+          `#${row.index}`,
+          `${formatPrice(row.pHigh)} → ${formatPrice(row.pLow)}`,
+          `${formatUsd(row.usdt)} USDT`,
+          `avg ${formatPrice(row.avgBuy)}`,
+          `loss ${formatPct(row.lossAtLevel)}`
+        ].join(' | ')),
+        '',
+        `Avg entry: ${formatPrice(result.summary.avgEntry)}`,
+        `Loss at target: ${formatPct(result.summary.lossAtLevel)}`
+      ].join('\n');
+    }
+
+    [els.price, els.capital].forEach((input) => {
+      input.addEventListener('input', render);
+      input.addEventListener('change', render);
+    });
+
+    els.findPools.addEventListener('click', discoverPools);
+    [
+      [els.quickPresetFresh, () => applyQuickPreset('fresh')],
+      [els.quickPresetFees, () => applyQuickPreset('fees')],
+      [els.quickPresetFlow, () => applyQuickPreset('flow')],
+      [els.quickPresetLiq, () => applyQuickPreset('liq')],
+      [els.sortChipScore, () => applyQuickSort('score')],
+      [els.sortChipFeeTvl, () => applyQuickSort('feeTvl')],
+      [els.sortChipVolume, () => applyQuickSort('volume')],
+      [els.sortChipBuyFlow, () => applyQuickSort('buyFlow')],
+      [els.sortChipLiquidity, () => applyQuickSort('liquidity')]
+    ].forEach(([button, handler]) => {
+      button.addEventListener('click', handler);
+    });
+    [els.sortPools, ...lookupFilterInputs, els.bestFeeTvlOnly, els.topTvlOnly].forEach((input) => {
+      const rerenderPools = () => {
+        if (input === els.bestFeeTvlOnly && els.bestFeeTvlOnly.checked) {
+          els.topTvlOnly.checked = false;
+        }
+
+        if (input === els.topTvlOnly && els.topTvlOnly.checked) {
+          els.bestFeeTvlOnly.checked = false;
+        }
+
+        if (lookupFilterInputs.includes(input) || input === els.bestFeeTvlOnly || input === els.topTvlOnly) {
+          state.activeQuickPreset = null;
+        }
+
+        syncLookupUi();
+      };
+
+      input.addEventListener('input', rerenderPools);
+      input.addEventListener('change', rerenderPools);
+    });
+    [els.quoteFilter, els.feeTvlWindow].forEach((input) => {
+      const rerenderPools = () => {
+        syncLookupUi();
+      };
+      input.addEventListener('input', rerenderPools);
+      input.addEventListener('change', rerenderPools);
+    });
+    els.tokenAddress.addEventListener('input', saveLookupPreferences);
+    els.tokenAddress.addEventListener('change', saveLookupPreferences);
+    els.tokenAddress.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        discoverPools();
+      }
+    });
+
+    els.copyPlan.addEventListener('click', async () => {
+      const text = buildCopyText();
+
+      try {
+        await navigator.clipboard.writeText(text);
+        els.copyPlan.textContent = 'Скопировано';
+        setTimeout(() => {
+          els.copyPlan.textContent = 'Скопировать';
+        }, 1400);
+      } catch (error) {
+        alert(text);
+      }
+    });
+
+    els.resetDefaults.addEventListener('click', () => {
+      els.price.value = defaults.price;
+      els.capital.value = defaults.capital;
+      state.selectedDropAbs = defaults.targetDropAbs;
+      renderPresetButtons();
+      state.selectedPoolId = null;
+      state.discoveredPools = [];
+      els.tokenAddress.value = '';
+      els.quoteFilter.value = 'all';
+      clearLookupFilters();
+      els.sortPools.value = 'score';
+      els.feeTvlWindow.value = 'h24';
+      state.activeQuickPreset = null;
+      els.lookupResults.innerHTML = '';
+      els.lookupStatus.textContent = 'Сейчас поиск идёт по основным quote-токенам: WBNB, USDT, USDC. Этого хватает для первого этапа и для большинства ликвидных пар.';
+      updatePoolsCounter(0, 0);
+      renderSelectedPool();
+      renderQuickControls();
+      saveLookupPreferences();
+      render();
+    });
+
+    restoreLookupPreferences();
+    renderQuickControls();
+    updatePoolsCounter(0, 0);
+    renderPresetButtons();
+    render();
+  </script>
+</body>
+</html>

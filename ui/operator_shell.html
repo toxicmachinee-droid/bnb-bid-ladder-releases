@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BNB BitLadder Operator Shell</title>
+  <link rel="stylesheet" href="/ui/operator_shell.css?v=20260527-pool-search-timeout">
+  <link rel="stylesheet" href="/ui/desktop_window.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="app-sidebar">
+      <div class="brand-block">
+        <div class="brand-mark"><img src="/ui/app-icon-64.png" alt=""></div>
+        <div>
+          <strong>Liquidity Ladder</strong>
+          <span>BNB operator shell</span>
+        </div>
+      </div>
+      <nav class="app-nav app-nav-primary">
+        <button type="button" class="nav-link active" data-view="pool-search">Pool Search</button>
+        <button type="button" class="nav-link" data-view="create">Create</button>
+        <button type="button" class="nav-link" data-view="swap">Swap</button>
+        <button type="button" class="nav-link" data-view="manage">Manage</button>
+      </nav>
+      <nav class="app-nav app-nav-footer" aria-label="Settings">
+        <button type="button" class="nav-link" data-view="settings">Settings</button>
+      </nav>
+    </aside>
+
+    <main class="app-main">
+      <header class="app-header">
+        <div>
+          <h1 id="app-title">Pool Search</h1>
+          <p id="app-subtitle"></p>
+        </div>
+        <div class="header-status-bar">
+          <div class="status-card">
+            <span>Selected</span>
+            <strong id="header-selected-pool">None</strong>
+          </div>
+          <div class="status-card">
+            <span>Live Price</span>
+            <strong id="header-selected-price">-</strong>
+          </div>
+          <div class="status-card status-card-updated">
+            <span>Updated</span>
+            <strong id="updated-at">Last updated: -</strong>
+          </div>
+          <div class="status-card">
+            <span>Execution</span>
+            <strong id="fork-status">Checking...</strong>
+          </div>
+          <div class="status-card status-card-license">
+            <span>License</span>
+            <strong id="license-status-chip">Checking...</strong>
+          </div>
+        </div>
+      </header>
+
+      <section id="view-pool-search" class="view-section active">
+        <section class="search-panel">
+          <div class="search-head">
+            <div class="search-box">
+              <input id="pool-query" type="text" value="" placeholder="Search by contract or symbol" autocomplete="off">
+              <button id="search-button" type="button">Search</button>
+              <button id="pool-search-refresh-button" type="button" class="ghost-button search-refresh-button" title="Refresh Pool Search">Refresh</button>
+              <button id="reset-filters-button" type="button" class="ghost-button search-ghost-button">Reset Filters</button>
+            </div>
+          </div>
+          <div class="search-meta-row">
+            <p class="search-meta" id="search-meta">No search yet.</p>
+          </div>
+
+          <div class="toolbar">
+            <div class="toolbar-main">
+              <label class="field">
+                <span>Main Sort</span>
+                <select id="sort-select">
+                  <option value="feeTvl">Fee/TVL</option>
+                  <option value="marketCap">Market Cap</option>
+                  <option value="liquidity">Liquidity</option>
+                  <option value="volume">24H Volume</option>
+                  <option value="age">Age</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Fee/TVL Interval</span>
+                <select id="fee-tvl-interval">
+                  <option value="1h">1H Fee/TVL</option>
+                  <option value="2h">2H Fee/TVL</option>
+                  <option value="4h" selected>4H Fee/TVL</option>
+                  <option value="6h">6H Fee/TVL</option>
+                  <option value="12h">12H Fee/TVL</option>
+                  <option value="24h">24H Fee/TVL</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>DEX</span>
+                <select id="dex-filter">
+                  <option value="all">All</option>
+                  <option value="pancakeswap">PancakeSwap</option>
+                  <option value="uniswap">Uniswap</option>
+                  <option value="thena">Thena</option>
+                  <option value="sushiswap">SushiSwap</option>
+                </select>
+              </label>
+              <fieldset class="field pool-type-filter-field">
+                <legend><span>Pool Type</span></legend>
+                <div class="pool-type-filter" id="pool-type-filter">
+                  <label><input type="checkbox" data-pool-type-filter="v3" checked><span>V3</span></label>
+                  <label><input type="checkbox" data-pool-type-filter="v4" checked><span>V4</span></label>
+                  <label><input type="checkbox" data-pool-type-filter="v2" checked><span>V2</span></label>
+                  <label><input type="checkbox" data-pool-type-filter="infinity" checked><span>Infinity</span></label>
+                </div>
+              </fieldset>
+              <label class="field">
+                <span>Quote Token</span>
+                <select id="quote-token-filter">
+                  <option value="all">All</option>
+                  <option value="bnb">BNB / WBNB</option>
+                  <option value="usdt">USDT</option>
+                  <option value="usdc">USDC</option>
+                </select>
+              </label>
+            </div>
+            <div class="toolbar-advanced">
+              <label class="field">
+                <span>Min Market Cap (M)</span>
+                <input id="min-market-cap" type="number" min="0" step="0.1" placeholder="Min M">
+              </label>
+              <label class="field">
+                <span>Max Market Cap (M)</span>
+                <input id="max-market-cap" type="number" min="0" step="0.1" placeholder="Max M">
+              </label>
+              <label class="field">
+                <span>Min Age (HR)</span>
+                <input id="min-age-hours" type="number" min="0" step="1" placeholder="Min HR">
+              </label>
+              <label class="field">
+                <span>Max Age (HR)</span>
+                <input id="max-age-hours" type="number" min="0" step="1" placeholder="Max HR">
+              </label>
+              <label class="field">
+                <span>Min Liquidity (K)</span>
+                <input id="min-liquidity" type="number" min="0" step="0.1" placeholder="Min K">
+              </label>
+              <label class="field">
+                <span>Max Liquidity (K)</span>
+                <input id="max-liquidity" type="number" min="0" step="0.1" placeholder="Max K">
+              </label>
+              <label class="field">
+                <span>Min 24H Vol (K)</span>
+                <input id="min-volume-24h" type="number" min="0" step="0.1" placeholder="Min K">
+              </label>
+              <label class="field">
+                <span>Max 24H Vol (K)</span>
+                <input id="max-volume-24h" type="number" min="0" step="0.1" placeholder="Max K">
+              </label>
+              <label class="field">
+                <span>Min 1H Vol (K)</span>
+                <input id="min-volume-1h" type="number" min="0" step="0.1" placeholder="Min K">
+              </label>
+              <label class="field">
+                <span>Max 1H Vol (K)</span>
+                <input id="max-volume-1h" type="number" min="0" step="0.1" placeholder="Max K">
+              </label>
+              <label class="field">
+                <span>Min Base Fee (%)</span>
+                <input id="min-base-fee" type="number" min="0" step="0.01" placeholder="Min %">
+              </label>
+              <label class="field">
+                <span>Max Base Fee (%)</span>
+                <input id="max-base-fee" type="number" min="0" step="0.01" placeholder="Max %">
+              </label>
+              <label class="field">
+                <span>Min 24H Fees (K)</span>
+                <input id="min-fees-24h" type="number" min="0" step="0.1" placeholder="Min K">
+              </label>
+              <label class="field">
+                <span>Max 24H Fees (K)</span>
+                <input id="max-fees-24h" type="number" min="0" step="0.1" placeholder="Max K">
+              </label>
+            </div>
+            <div class="filter-presets">
+              <div class="filter-preset-save">
+                <label class="field filter-preset-name">
+                  <span>Preset Name</span>
+                  <input id="filter-preset-name" type="text" maxlength="28" placeholder="Preset name" autocomplete="off">
+                </label>
+                <button id="save-filter-preset-button" type="button" class="ghost-button filter-preset-save-button">Save Preset</button>
+              </div>
+              <div id="filter-preset-list" class="filter-preset-list" aria-label="Saved filter presets"></div>
+              <p id="filter-preset-feedback" class="filter-preset-feedback"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="results-meta">
+          <div>
+            <h2>Pool Results</h2>
+            <p id="results-header">Awaiting search...</p>
+          </div>
+        </section>
+
+        <div class="search-view-layout">
+          <section class="cards-column">
+            <div class="pool-grid" id="pool-grid"></div>
+          </section>
+
+          <aside class="sidebar compact">
+            <section class="side-card accent-card">
+              <h3>Selected Pool</h3>
+              <div class="metric-list" id="selected-pool-panel"></div>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <section id="view-create" class="view-section">
+        <div class="create-workspace">
+          <section class="create-shell">
+            <div class="create-shell-head">
+              <div>
+                <h2>Create Position</h2>
+                <p id="setup-meta">Choose a pool above to configure entry settings.</p>
+              </div>
+            </div>
+            <div id="position-setup-root"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="view-swap" class="view-section">
+        <div class="swap-studio">
+          <div class="swap-studio-toolbar">
+            <div class="swap-studio-live">
+              <span class="swap-live-dot" aria-hidden="true"></span>
+              <span>Quote live</span>
+              <span class="swap-toolbar-divider"></span>
+              <span>Full route list updating</span>
+              <strong id="swap-quote-freshness">Idle</strong>
+            </div>
+            <div class="swap-studio-actions">
+              <button type="button" id="swap-settings-button" class="swap-studio-button" aria-label="Open swap settings">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 7h16M7 12h10M10 17h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span>Slippage controls</span>
+              </button>
+              <button type="button" id="swap-preview-button" class="swap-studio-button" aria-label="Refresh swap quotes">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 12a8 8 0 0 1-13.7 5.7M4 12A8 8 0 0 1 17.7 6.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M7 18H4v-3M17 6h3v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Refresh quotes</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="swap-studio-grid">
+            <section class="swap-studio-card swap-trade-panel">
+              <div class="swap-pro-wallet-row">
+                <div>
+                  <span class="swap-pro-label">Wallet</span>
+                  <button type="button" class="swap-wallet-button" aria-label="Active swap wallet">
+                    <span class="swap-wallet-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M4 7.5h14.5A2.5 2.5 0 0 1 21 10v7a2.5 2.5 0 0 1-2.5 2.5h-14A2.5 2.5 0 0 1 2 17V6.5A2.5 2.5 0 0 1 4.5 4H18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                        <path d="M16 13h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                      </svg>
+                    </span>
+                    <strong id="swap-wallet-address">No wallet</strong>
+                  </button>
+                </div>
+                <span class="swap-wallet-total">$0.00</span>
+              </div>
+
+              <section class="swap-pro-leg swap-pro-leg-sell">
+                <div class="swap-pro-leg-head">
+                  <span id="swap-sell-label">Sell USDT</span>
+                  <button type="button" id="swap-wallet-balance-in-button" class="swap-balance-fill-button" data-swap-amount="max" aria-label="Fill sell amount from token balance">
+                    <small>Balance <strong id="swap-wallet-balance-in">-</strong></small>
+                  </button>
+                </div>
+                <div class="swap-pro-field-row">
+                  <button type="button" id="swap-token-in-button" class="swap-token-select-card" aria-label="Select sell token">
+                    <span class="swap-token-trigger-icon" id="swap-token-in-icon" data-token="USDT">T</span>
+                    <span class="swap-token-trigger-copy">
+                      <strong id="swap-token-in-symbol">USDT</strong>
+                      <small id="swap-token-in-address">Tether USD</small>
+                    </span>
+                    <span class="swap-token-trigger-caret" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </button>
+                  <label class="swap-pro-amount-card">
+                    <input id="swap-amount-in" type="number" min="0" step="0.000001" placeholder="0.00">
+                    <span id="swap-fiat-in">$0.00</span>
+                  </label>
+                </div>
+                <div class="swap-percent-grid">
+                  <button type="button" data-swap-amount="25%">25%</button>
+                  <button type="button" data-swap-amount="50%">50%</button>
+                  <button type="button" data-swap-amount="75%">75%</button>
+                  <button type="button" data-swap-amount="max">100%</button>
+                </div>
+              </section>
+
+              <div class="swap-pro-switch-row">
+                <button id="swap-direction-button" type="button" class="swap-direction-button" aria-label="Swap token direction">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 7h8l-2.5-2.5M16 17H8l2.5 2.5M16 7l-8 0M8 17l8 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+
+              <section class="swap-pro-leg swap-pro-leg-buy">
+                <div class="swap-pro-leg-head">
+                  <span id="swap-buy-label">Buy BNB</span>
+                  <small>Balance <strong id="swap-wallet-balance-out">-</strong></small>
+                </div>
+                <div class="swap-pro-field-row">
+                  <button type="button" id="swap-token-out-button" class="swap-token-select-card" aria-label="Select buy token">
+                    <span class="swap-token-trigger-icon" id="swap-token-out-icon" data-token="BNB">B</span>
+                    <span class="swap-token-trigger-copy">
+                      <strong id="swap-token-out-symbol">BNB</strong>
+                      <small id="swap-token-out-address">BNB</small>
+                    </span>
+                    <span class="swap-token-trigger-caret" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </button>
+                  <div class="swap-pro-amount-card swap-pro-output-card">
+                    <strong id="swap-output-estimate">-</strong>
+                    <span id="swap-fiat-out">$0.00</span>
+                  </div>
+                </div>
+              </section>
+
+              <div class="swap-pro-settings">
+                <div>
+                  <span>Auto slippage</span>
+                  <strong id="swap-slippage-display">0.50%</strong>
+                </div>
+                <div>
+                  <span>Transaction speed</span>
+                  <strong>Standard</strong>
+                </div>
+              </div>
+
+              <div class="swap-pro-metrics">
+                <div>
+                  <span>Min received</span>
+                  <strong id="swap-min-receive">-</strong>
+                </div>
+                <div>
+                  <span>Best venue</span>
+                  <strong id="swap-best-venue">-</strong>
+                </div>
+                <div>
+                  <span>Price impact</span>
+                  <strong id="swap-price-impact">-</strong>
+                </div>
+              </div>
+
+              <div class="swap-preview-summary-grid swap-ticket-summary" id="swap-preview-summary"></div>
+
+              <div class="swap-pro-execute">
+                <div id="swap-feedback" class="swap-feedback hidden" aria-live="polite"></div>
+                <button type="button" id="swap-execute-button" class="swap-main-button">Connect wallet</button>
+              </div>
+
+              <div class="swap-pro-rate">
+                <div id="swap-direction-line">1 USDT -> - BNB</div>
+                <strong id="swap-rate">Rate: -</strong>
+                <span id="swap-preview-subtitle">Waiting for valid amount and tokens.</span>
+              </div>
+            </section>
+
+            <aside class="swap-studio-card swap-routes-panel-pro">
+              <div class="swap-pro-route-head">
+                <h3>Route candidates</h3>
+              </div>
+              <div class="swap-route-stack swap-route-list-pro" id="swap-route-list"></div>
+              <div class="swap-route-footer">
+                <span id="swap-route-count-chip">0 routes</span>
+                <span id="swap-selected-route-pill">Best</span>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-manage" class="view-section">
+        <div class="manage-layout">
+          <section class="manage-main">
+            <div class="manage-summary-strip" id="manage-summary-strip"></div>
+
+            <section class="manage-card">
+              <div class="manage-card-head manage-card-head-compact">
+                <div>
+                  <h2>Manage Positions</h2>
+                </div>
+                <div class="manage-batch-actions">
+                  <button id="manage-claim-selected" type="button" class="ghost-button manage-action-button manage-action-claim">Claim Selected</button>
+                  <button id="manage-close-selected" type="button" class="ghost-button manage-action-button manage-action-close">Close Selected</button>
+                  <button id="manage-claim-all" type="button" class="ghost-button manage-action-button manage-action-claim">Claim All</button>
+                  <button id="manage-close-all" type="button" class="ghost-button manage-action-button manage-action-close">Close All</button>
+                  <button id="manage-close-swap-selected" type="button" class="ghost-button manage-action-button manage-action-swap">Close + Swap Selected</button>
+                  <button id="manage-close-swap-all" type="button" class="ghost-button manage-action-button manage-action-swap">Close + Swap All</button>
+                </div>
+              </div>
+
+              <div class="manage-table-wrap">
+                <table class="manage-table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Token</th>
+                      <th>Age</th>
+                      <th>Fee</th>
+                      <th>Price Range</th>
+                      <th>Value</th>
+                      <th>Fees</th>
+                      <th>PnL</th>
+                      <th>Status</th>
+                      <th>Range Progress</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="manage-open-table-body"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="manage-card">
+              <div class="manage-card-head">
+                <div>
+                  <h2>Closed Positions</h2>
+                  <p>Recent closes with realized pnl, fees and exit swap delta.</p>
+                </div>
+              </div>
+              <div class="manage-table-wrap">
+                <table class="manage-table closed-table">
+                  <thead>
+                    <tr>
+                      <th>Token</th>
+                      <th>Closed</th>
+                      <th>Deposit</th>
+                      <th>Fees</th>
+                      <th>PnL</th>
+                      <th>Exit Swap</th>
+                    </tr>
+                  </thead>
+                  <tbody id="manage-closed-table-body"></tbody>
+                </table>
+              </div>
+            </section>
+          </section>
+
+          <aside class="sidebar">
+            <section class="side-card">
+              <h3>Local Keystore</h3>
+              <div class="metric-list" id="keystore-status-list"></div>
+              <div class="keystore-actions">
+                <button id="keystore-refresh-button" type="button" class="ghost-button">Refresh</button>
+                <button id="keystore-lock-button" type="button" class="ghost-button">Lock</button>
+              </div>
+              <form id="keystore-unlock-form" class="keystore-form" autocomplete="off">
+                <input type="text" name="username" value="local-keystore" autocomplete="username" tabindex="-1" hidden>
+                <label class="field">
+                  <span>Wallet</span>
+                  <select id="keystore-wallet-select"></select>
+                </label>
+                <label class="field">
+                  <span>Password</span>
+                  <input id="keystore-password" type="password" placeholder="Unlock password" autocomplete="off" data-lpignore="true" data-1p-ignore="true" spellcheck="false">
+                </label>
+                <button id="keystore-unlock-button" type="submit">Unlock Session</button>
+              </form>
+              <form id="keystore-import-form" class="keystore-form" autocomplete="off">
+                <input type="text" name="username" value="local-keystore-import" autocomplete="username" tabindex="-1" hidden>
+                <label class="field">
+                  <span>Label</span>
+                  <input id="keystore-import-label" type="text" placeholder="Trading wallet">
+                </label>
+                <label class="field">
+                  <span>Password</span>
+                  <input id="keystore-import-password" type="password" placeholder="Encrypt with password" autocomplete="new-password">
+                </label>
+                <label class="field">
+                  <span>Private Key</span>
+                  <input id="keystore-import-private-key" type="password" placeholder="0x..." autocomplete="new-password">
+                </label>
+                <button id="keystore-import-button" type="submit">Import to Keystore</button>
+              </form>
+              <p class="keystore-note" id="keystore-feedback">Key material is encrypted locally and unlock stays only in RAM.</p>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <section id="view-settings" class="view-section">
+        <div class="settings-layout">
+          <section class="settings-card">
+            <div class="settings-card-head">
+              <div>
+                <h2>Node</h2>
+                <p>Paste Alchemy HTTPS RPC for live data and transactions.</p>
+              </div>
+              <a class="settings-external-link" href="https://dashboard.alchemy.com/signup" target="_blank" rel="noreferrer">Register at Alchemy</a>
+            </div>
+            <form id="settings-node-form" class="settings-form" autocomplete="off">
+              <label class="field">
+                <span>BNB Chain RPC URL</span>
+                <input id="settings-node-url" type="url" placeholder="https://bnb-mainnet.g.alchemy.com/v2/..." spellcheck="false">
+              </label>
+              <div class="settings-actions">
+                <button id="settings-node-save" type="submit">Save Node</button>
+                <button id="settings-node-reset" type="button" class="ghost-button">Reset</button>
+              </div>
+            </form>
+            <p id="settings-node-feedback" class="settings-feedback"></p>
+          </section>
+
+          <section class="settings-card">
+            <div class="settings-card-head">
+              <div>
+                <h2>Generate Wallet</h2>
+                <p>Кошелек добавится в Manage и будет зашифрован локальным паролем.</p>
+              </div>
+            </div>
+            <form id="settings-generate-wallet-form" class="settings-form" autocomplete="off">
+              <input type="text" name="username" value="local-generated-wallet" autocomplete="username" tabindex="-1" hidden>
+              <div class="settings-wallet-grid">
+                <label class="field">
+                  <span>Label</span>
+                  <input id="settings-wallet-label" type="text" placeholder="New wallet">
+                </label>
+                <label class="field">
+                  <span>Password</span>
+                  <input id="settings-wallet-password" type="password" placeholder="Encryption password" autocomplete="new-password">
+                </label>
+              </div>
+              <button id="settings-wallet-generate" type="submit">Generate Wallet</button>
+            </form>
+            <p id="settings-wallet-feedback" class="settings-feedback"></p>
+            <div id="settings-generated-wallet-list" class="generated-wallet-list"></div>
+          </section>
+
+          <section class="settings-social-card" aria-label="Telegram">
+              <a id="settings-telegram-link" class="telegram-link settings-social-link" href="https://t.me/" target="_blank" rel="noreferrer" aria-label="Open Telegram channel">
+                <span>Telegram</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M21.5 4.6 18.3 20c-.2 1-.8 1.2-1.6.8l-4.5-3.3-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7 8.6-7.8c.4-.3-.1-.5-.6-.2L6.8 14 2.2 12.5c-1-.3-1-1 .2-1.4L20.3 4c.8-.3 1.5.2 1.2.6z" fill="currentColor"/>
+                </svg>
+              </a>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <button id="desktop-update-button" class="desktop-update-button desktop-update-button-hidden" type="button" data-update-state="idle" data-has-update="0" aria-label="Check for desktop updates" title="Check for desktop updates">
+    <span class="desktop-update-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M20 12a8 8 0 0 1-13.7 5.7M4 12A8 8 0 0 1 17.7 6.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M7 18H4v-3M17 6h3v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <span class="desktop-update-copy">
+      <span id="desktop-update-label" class="desktop-update-label">Check</span>
+      <span id="desktop-update-detail" class="desktop-update-detail">Ready</span>
+    </span>
+    <span id="desktop-update-progress" class="desktop-update-progress" aria-hidden="true">
+      <span class="desktop-update-progress-bar"></span>
+    </span>
+  </button>
+
+  <div id="swap-token-modal" class="swap-token-dropdown hidden" aria-hidden="true">
+    <div class="swap-token-dropdown-panel">
+      <div class="swap-token-dropdown-head">
+        <div>
+          <h2 id="swap-token-modal-title">Select Token</h2>
+          <p id="swap-token-modal-subtitle">Search by symbol or paste a token contract address.</p>
+        </div>
+        <button id="swap-token-modal-close" type="button" class="icon-action swap-token-dropdown-close" aria-label="Close token selector">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </button>
+      </div>
+      <div class="swap-token-dropdown-body">
+        <label class="swap-modal-search">
+          <span>Search</span>
+          <input id="swap-token-search-input" type="text" placeholder="Search token or paste contract address" autocomplete="off">
+        </label>
+        <p id="swap-token-modal-meta" class="swap-token-modal-meta">Loading tokens...</p>
+        <div id="swap-token-empty" class="swap-token-empty hidden"></div>
+        <div id="swap-token-list" class="swap-token-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="swap-settings-modal" class="modal-shell hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-modal-close="swap-settings"></div>
+    <div class="modal-dialog swap-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="swap-settings-modal-title">
+      <div class="modal-head">
+        <div>
+          <h2 id="swap-settings-modal-title">Swap Settings</h2>
+          <p>Persisted locally per wallet. Slippage here is the source of truth for preview and execution.</p>
+        </div>
+        <button id="swap-settings-modal-close" type="button" class="icon-action modal-close-button" aria-label="Close swap settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body swap-settings-body">
+        <section class="swap-settings-section">
+          <h3>Slippage</h3>
+          <div class="swap-settings-chip-row">
+            <button type="button" class="swap-chip-button" data-swap-slippage="0.1">0.1%</button>
+            <button type="button" class="swap-chip-button" data-swap-slippage="0.5">0.5%</button>
+            <button type="button" class="swap-chip-button" data-swap-slippage="1">1.0%</button>
+          </div>
+          <label class="field">
+            <span>Custom Slippage (%)</span>
+            <input id="swap-slippage" type="number" min="0.01" step="0.01" value="0.5" placeholder="0.5">
+          </label>
+        </section>
+
+        <section class="swap-settings-section">
+          <h3>Execution Mode</h3>
+          <div class="swap-settings-chip-row">
+            <span class="swap-chip-button swap-chip-button-static">Fast mode</span>
+            <span class="swap-chip-button swap-chip-button-static">Unlimited approve</span>
+          </div>
+          <p class="swap-settings-note">Default swap approval is unlimited for faster repeat swaps. First swap may still need approve, later swaps on the same token should usually execute as swap only.</p>
+        </section>
+
+        <section class="swap-settings-section">
+          <h3>Live Refresh</h3>
+          <label class="toggle">
+            <input id="swap-auto-refresh-toggle" type="checkbox" checked>
+            <span>Auto refresh live quote</span>
+          </label>
+          <label class="field">
+            <span>Refresh cadence</span>
+            <select id="swap-refresh-cadence">
+              <option value="2500">Fast (2.5s)</option>
+              <option value="5000" selected>Normal (5s)</option>
+              <option value="8000">Calm (8s)</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="swap-settings-section">
+          <h3>Shortcuts</h3>
+          <label class="field">
+            <span>Default quick tokens</span>
+            <input id="swap-quick-token-input" type="text" placeholder="USDT,BNB,USDC">
+          </label>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="preview-modal" class="modal-shell hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-modal-close="preview"></div>
+    <div class="modal-dialog preview-dialog" role="dialog" aria-modal="true" aria-labelledby="preview-modal-title">
+      <div class="modal-head">
+        <div>
+          <h2 id="preview-modal-title">Execution Review</h2>
+          <p id="preview-modal-subtitle">Inspect the full ladder before opening positions.</p>
+        </div>
+        <button id="preview-modal-close" type="button" class="icon-action modal-close-button" aria-label="Close preview">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="preview-modal-body"></div>
+    </div>
+  </div>
+
+  <template id="pool-card-template">
+    <article class="pool-card" role="button" tabindex="0">
+      <div class="card-head">
+        <div>
+          <div class="dex-strip">
+            <span class="token-pair"></span>
+            <span class="quote-chip"></span>
+          </div>
+            <div class="pool-meta-row">
+              <h3 class="pool-name"></h3>
+              <div class="pool-meta-actions">
+                <a class="mini-link dex-link" target="_blank" rel="noreferrer">dex</a>
+                <a class="mini-link defined-link" target="_blank" rel="noreferrer">def</a>
+                <a class="mini-link swap-link" target="_blank" rel="noreferrer"></a>
+              </div>
+            </div>
+          <div class="subline"></div>
+        </div>
+        <div class="right-head">
+          <div class="pool-signal-wrap">
+            <span class="pool-signal"></span>
+          </div>
+          <div class="active-fee-tvl"></div>
+          <div class="active-fee-label"></div>
+        </div>
+      </div>
+
+      <div class="matrix two-col primary-metrics"></div>
+
+      <div class="divider"></div>
+
+      <div class="analysis-grid">
+        <section class="analysis-block">
+          <div class="section-title">Fee/TVL Ratio</div>
+          <div class="ratio-table fee-tvl-table"></div>
+        </section>
+        <section class="analysis-block volume-block">
+          <div class="section-title">Total Volume</div>
+          <div class="ratio-table total-volume-table"></div>
+        </section>
+      </div>
+
+      <div class="card-foot">
+        <span class="pool-ca"></span>
+        <button class="icon-action copy-ca-button" type="button" aria-label="Copy contract address">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 9h10v10H9z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M5 15V5h10" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </button>
+      </div>
+    </article>
+  </template>
+
+  <div id="link-context-menu" class="link-context-menu" hidden>
+    <button type="button" data-copy-link-menu-action="copy">Копировать</button>
+  </div>
+
+  <script src="/ui/position_setup_shared.js?v=20260403-2"></script>
+  <script src="/ui/desktop_window.js"></script>
+  <script src="/ui/operator_shell.js?v=20260528-swap-v2-routes"></script>
+</body>
+</html>

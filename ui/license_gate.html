@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>License Required</title>
+  <link rel="stylesheet" href="/ui/license_gate.css">
+  <link rel="stylesheet" href="/ui/desktop_window.css">
+</head>
+<body>
+  <main class="license-shell">
+    <section class="license-panel">
+      <p class="eyebrow">BNB BitLadder</p>
+      <h1>License Required</h1>
+      <form id="license-form" autocomplete="off">
+        <label for="license-key">License key</label>
+        <input id="license-key" name="licenseKey" type="password" placeholder="LL-XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX" spellcheck="false" autocomplete="off">
+        <button id="license-submit" type="submit">Activate</button>
+      </form>
+      <p id="license-status" class="status-line">Checking license session...</p>
+      <p id="license-expiry" class="expiry-line"></p>
+    </section>
+  </main>
+  <script src="/ui/desktop_window.js"></script>
+  <script src="/ui/license_gate.js"></script>
+</body>
+</html>

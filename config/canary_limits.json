@@ -1,0 +1,16 @@
+{
+  "mode": "canary",
+  "enabled": true,
+  "maxOpenCapitalUsd": null,
+  "maxPerTxUsd": null,
+  "maxTxCount": 4,
+  "maxDailyLossUsd": 1,
+  "maxDailyGasCostBnb": 0.002,
+  "maxEstimatedGasCostBnb": 0.0015,
+  "minNativeGasReserveBnb": 0.001,
+  "allowAutoswap": true,
+  "notes": [
+    "Live capital caps are disabled for deliberate larger-amount testing.",
+    "Gas, transaction count, and native gas reserve checks remain enabled."
+  ]
+}

@@ -1,0 +1,134 @@
+.desktop-titlebar {
+  display: none;
+}
+
+body.desktop-app {
+  padding-top: 40px;
+}
+
+body.desktop-app .desktop-titlebar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 1000;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(6, 8, 11, 0.98);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #dce7ee;
+  -webkit-app-region: drag;
+}
+
+.desktop-titlebar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding-left: 14px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.desktop-titlebar-version {
+  margin-left: 2px;
+  color: rgba(159, 173, 188, 0.78);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.desktop-titlebar-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(49, 209, 161, 0.1);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(243, 197, 98, 0.18);
+}
+
+.desktop-titlebar-mark img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.desktop-titlebar-controls {
+  display: inline-flex;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.desktop-titlebar-button {
+  width: 46px;
+  height: 40px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #cbd7df;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.desktop-titlebar-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.desktop-titlebar-button.close:hover {
+  background: #c94f5f;
+  color: #fff;
+}
+
+.desktop-titlebar-icon {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  display: block;
+  color: currentColor;
+}
+
+.desktop-titlebar-icon.minimize::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 3px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.desktop-titlebar-icon.maximize::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border: 1.6px solid currentColor;
+  border-radius: 2px;
+}
+
+.desktop-titlebar-icon.close::before,
+.desktop-titlebar-icon.close::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 1px;
+  width: 12px;
+  height: 1.6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.desktop-titlebar-icon.close::before {
+  transform: rotate(45deg);
+}
+
+.desktop-titlebar-icon.close::after {
+  transform: rotate(-45deg);
+}

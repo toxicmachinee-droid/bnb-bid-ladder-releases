@@ -1,67 +1,84 @@
-# BNB Bid Ladder
+# BNB BitLadder
 
-Public download and update channel for the BNB Bid Ladder desktop app.
+BNB BitLadder is a desktop operator app with local wallet custody and server-enforced premium execution planning.
 
-This repository is intentionally release-only. It contains installer assets, update manifests, checksums, and user-facing security notes. It does not contain the private license server, admin panel, premium planner code, license database, signing private keys, or operator secrets.
+Public distribution is paused while the license/security split is reviewed.
 
-## Download
+This repository currently verifies the public source/export boundary, not a Windows installer artifact. Do not publish an installer or portable archive until the release pipeline proves that the artifact is built from the approved thin-client/public bundle and passes the same boundary checks after packaging.
 
-Latest Windows installer:
+Expected release assets, once the installer pipeline is restored and audited:
+- `BNB.BitLadder.Setup.<version>.exe` - Windows installer.
+- `BNB.BitLadder.Portable.<version>.zip` - unpacked app folder for users who prefer to inspect files before launching.
+- `SHA256SUMS.txt` - hashes for release assets.
 
-https://github.com/toxicmachinee-droid/bnb-bid-ladder-releases/releases/latest/download/BNB.Bid.Ladder.Setup.0.1.3.exe
+The updater mechanism must be verified against the packaged artifact before public release. Until that artifact test exists, updater behavior is not considered security-verified by this repository.
 
-Latest release page:
+## Trust Model
 
-https://github.com/toxicmachinee-droid/bnb-bid-ladder-releases/releases/latest
+Private keys never leave the user's machine. The desktop app keeps wallet import/unlock, encrypted keystore storage, RPC settings, Pool Search, Manage state, monitoring, journals, filters, and preferences local.
 
-Auto-update manifest:
+Premium live actions use a thin-client flow:
+- the client sends a normalized intent for `open`, `close`, `claim`, or `swap` to the license/planner server;
+- the server validates the license session, device identity, nonce, and action policy;
+- the server builds the executable transaction requests and signs a short-lived plan;
+- the client verifies the server signature, wallet, chain, expiry, selector policy, tx count, native value limits, approval spender, and expected action before local signing.
 
-https://github.com/toxicmachinee-droid/bnb-bid-ladder-releases/releases/latest/download/latest.json
+Read-only UI and local state must stay fast and local. Live premium execution may make one planner request after the user starts execution/review; if the planner is unavailable or the plan fails verification, the app fails closed with a clear retry state. It must never silently fall back to local premium transaction building.
 
-Current Windows installer SHA256:
+## Public Source Boundary
 
-```text
-8a718affb2aa9601171a5ecbe18d33db3113ab7befb4e995865bbcd6e10d75cf
-```
+The public/exported source exists so users can verify wallet safety and client-side plan verification. It is not a place to ship premium transaction planning algorithms.
 
-## Wallet And Private Key Safety
+Allowed in public/exported source:
+- UI, static assets, and read-only client code;
+- local encrypted keystore and local signing flow;
+- device/session client code;
+- signed-plan verification and execution runner;
+- public audit scripts and public security rules.
 
-BNB Bid Ladder is designed so wallet private keys stay on the user's computer.
+Intentionally not public:
+- private license server implementation;
+- admin panel internals;
+- premium planner internals;
+- V3/V4 mint, close, claim, swap, route-to-tx, and calldata builders used for live premium execution;
+- signing private keys, peppers, license databases, raw license keys, and deployment secrets;
+- internal planning docs, screenshots, runbooks, and development test artifacts.
 
-- Private keys are stored in a local encrypted keystore, protected by the user's wallet password.
-- The license server is not a wallet custodian and must not receive raw private keys, seed phrases, or wallet passwords.
-- The desktop app talks to the premium server for license checks and server-side planning, then verifies signed planner responses before execution.
-- Browser cookies, local storage, and the license session are not a source of wallet authority.
-- Users should never paste a private key, seed phrase, or wallet password into GitHub issues, Telegram, Discord, screenshots, or support chat.
+## Required Release Checks
 
-## What The Public Server Sees
-
-The production server is used for:
-
-- license activation and heartbeat;
-- premium planner responses;
-- signed plan delivery to the desktop app;
-- admin license management by the product operator.
-
-The server must not need:
-
-- raw wallet private keys;
-- seed phrases;
-- wallet passwords;
-- local encrypted keystore contents.
-
-## Verifying A Download
-
-On Windows PowerShell:
+Before any public source export or release build:
 
 ```powershell
-Get-FileHash .\BNB.Bid.Ladder.Setup.0.1.3.exe -Algorithm SHA256
+npm ci
+npm test
+npm run security:verify
+npm run audit:public-private
+npm run audit:public-release-boundary
+node ./scripts/export_public_release.cjs --dry-run
 ```
 
-The hash should match the SHA256 shown above or the digest on the GitHub release asset.
+`security:verify` runs tests, dependency audit, strict private/public checks, and copied-artifact boundary checks. The release boundary audit exports into `dist/public-release-audit` and verifies the copied artifact, not just the working tree.
 
-## Source Audit Status
+Installer size and updater behavior must be justified by the audited packaging pipeline, not by assumption. A release is blocked if the packaged artifact contains private planner/runtime files, premium transaction builders, server secrets, or stale dependencies.
 
-This release repository is the installer/update channel, not the source-audit repository.
+## Current Live Verification
 
-The public client source should be published separately only after its git history and release artifacts are checked for secrets, private server code, license database files, admin credentials, and test-only wallet material. Publishing source by simply flipping a private repository to public is intentionally avoided until that audit is complete.
+Last recorded manual verification on BSC mainnet:
+- `swap`: `0.1 USDT -> VRA` on VRA/USDT Uniswap V3, confirmed through a server-issued `remote_swap_plan`.
+- `open -> close`: VRA/USDT Uniswap V3 `micro_open_close`, `capitalUsd=0.1`, `autoswapOnClose=false`, confirmed with one approve, one mint, and one close transaction.
+
+These live checks prove the current installed app can execute through the remote planner, but they do not replace regression tests or release-artifact audits. Every new release still needs `npm run security:verify` and an audited exported/package artifact.
+
+## Device And License Binding
+
+The server binds a license to a device identity. The client sends `installId`, `hwidHash`, `publicKeyPem`, and derived `fingerprint`; sessions and planner/report requests must match that device and use signed one-time nonces.
+
+Operational policy:
+- one license key is one active bound device unless an admin explicitly resets it;
+- a different device must be rejected as `license key is bound to another device`;
+- nonce replays, repeated wrong-device attempts, and suspicious session churn must be reviewed in server audit logs;
+- confirmed abuse is handled by blocking the license key server-side, not by trusting client UI state.
+
+## Transaction Input Safety
+
+Users cannot gain shell or database access to the license server merely by sending an on-chain transaction. The realistic risk is different: transaction receipts, calldata, token metadata, logs, or route data become untrusted input once the server/client parses them. Any code that consumes chain data must treat it like hostile JSON/binary data: validate addresses/selectors/amounts, avoid shell execution, avoid SQL string concatenation, bound request sizes/timeouts, and never use transaction-provided URLs or file paths as trusted server operations.
