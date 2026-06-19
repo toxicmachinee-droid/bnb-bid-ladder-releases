@@ -11,6 +11,7 @@ These rules are mandatory for every release, hotfix, and local change that touch
 - Never cache reusable executable premium calldata as a bypass path.
 - Never put server private keys, license peppers, admin secrets, raw license keys, production databases, or deployment secrets in public/exported source.
 - Never publish a desktop installer, portable archive, or updater payload unless the packaged artifact itself is audited against the public/private boundary.
+- Never publish a public source/export bundle without a valid `PUBLIC_RELEASE_MANIFEST.json` and passing manifest verification.
 - Never process chain/RPC/transaction data as trusted input; calldata, receipts, token metadata, logs, symbols, URLs, and pool fields must be validated before storage, display, or planner use.
 
 ## Required Premium Flow
@@ -56,10 +57,19 @@ npm audit --omit=dev
 npm run security:verify
 npm run audit:public-private
 npm run audit:public-release-boundary
+npm run audit:public-manifest
 node ./scripts/export_public_release.cjs --dry-run
 ```
 
-The strict audit must check a copied exported artifact, not only the repo tree. Public/exported builds must fail if they contain premium builders, `encodeFunctionData` premium sinks, server planner internals, license server code, private signing keys, peppers, admin tools, raw secrets, or private runtime references.
+The strict audit must check a copied exported artifact, not only the repo tree. Public/exported builds must fail if they contain premium builders, `encodeFunctionData` premium sinks, server planner internals, license server code, private signing keys, peppers, admin tools, raw secrets, private runtime references, or production dev-bypass flags.
+
+The public source export must include `PUBLIC_RELEASE_MANIFEST.json`; verify it with:
+
+```powershell
+node ./scripts/verify_public_release_manifest.cjs --target ./dist/public-release
+```
+
+Any hash mismatch, missing file, or extra file blocks publishing.
 
 Release builds must come from a clean dependency install. Do not package from a stale local `node_modules` directory with extraneous packages or versions that do not match `package-lock.json`.
 
@@ -76,6 +86,11 @@ Installer and updater artifacts must have their own gate:
 - Remote license/planner transport must use HTTPS unless the host is loopback or an explicit dev-only insecure override is set.
 - Licenses must be enforced server-side with device binding: `installId`, `hwidHash`, `publicKeyPem`, and derived device fingerprint must match the bound license/session before planner access.
 - A license key may have one active bound device unless an admin explicitly resets it. Wrong-device attempts must fail closed and be auditable.
+- License issuance must be tied to a user label or external customer id. Anonymous production licenses are not allowed.
+- Block, reset-device, and delete admin actions must include a reason. These reasons are for audit/support accountability and must not be exposed as secrets.
+- Audit payloads must be sanitized recursively before storage or display. Raw license keys, session tokens, authorization headers, private keys, peppers, ciphertext, and secrets must never appear in audit output.
+- Request nonces must be one-time use and pruned by retention policy. Replay attempts must fail before planner execution.
+- Signed request timestamps must be rejected outside the configured skew window before planner execution.
 - Signed plans must reject action mismatches, wallet mismatches, chain mismatches, missing transaction requests, future issue timestamps, expired plans, and plan TTLs above policy.
 - Admin list endpoints must not return raw license keys by default.
 - Execution reports must be signed with the device key and replay-protected with one-time nonces.

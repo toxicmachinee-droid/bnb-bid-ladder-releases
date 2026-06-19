@@ -84,6 +84,29 @@ const PUBLIC_EXECUTABLE_BUILDER_PATTERNS = [
   }
 ]
 
+const PUBLIC_DEV_BYPASS_PATTERNS = [
+  {
+    name: 'insecure-license-transport-env-bypass',
+    pattern: /\bOPERATOR_LICENSE_ALLOW_INSECURE_TRANSPORT\b/
+  },
+  {
+    name: 'license-required-disabled-env',
+    pattern: /\bOPERATOR_LICENSE_REQUIRED\s*=\s*['"`]?0\b/
+  },
+  {
+    name: 'remote-planner-required-disabled-env',
+    pattern: /\bREMOTE_PLANNER_REQUIRED\s*=\s*['"`]?0\b|\bOPERATOR_REMOTE_PLANNER_REQUIRED\s*=\s*['"`]?0\b/
+  },
+  {
+    name: 'license-required-false-literal',
+    pattern: /\blicenseRequired\s*:\s*false\b/
+  },
+  {
+    name: 'remote-planner-required-false-literal',
+    pattern: /\bremotePlannerRequired\s*:\s*false\b/
+  }
+]
+
 const PUBLIC_EXECUTABLE_RUNTIME_PATH_PATTERNS = [
   {
     name: 'premium-plan-module',
@@ -396,6 +419,11 @@ function auditPublicPrivateSplit({
       for (const builderPattern of PUBLIC_EXECUTABLE_BUILDER_PATTERNS) {
         if (builderPattern.pattern.test(content)) {
           executableBuilderFindings.push(`${relativePath}:${builderPattern.name}`)
+        }
+      }
+      for (const bypassPattern of PUBLIC_DEV_BYPASS_PATTERNS) {
+        if (bypassPattern.pattern.test(content)) {
+          executableBuilderFindings.push(`${relativePath}:${bypassPattern.name}`)
         }
       }
     }

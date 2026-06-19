@@ -8,6 +8,11 @@ const {
   isPublicReleaseFilePath,
   listAuditFiles
 } = require('./audit_public_private_split.cjs')
+const {
+  MANIFEST_FILE,
+  writePublicReleaseManifest,
+  verifyPublicReleaseManifest
+} = require('./verify_public_release_manifest.cjs')
 
 function parseArgs(argv) {
   const args = {
@@ -42,7 +47,8 @@ function rewritePackageJsonForPublicRelease(sourcePath, targetPath) {
   const body = JSON.parse(fs.readFileSync(sourcePath, 'utf8'))
   body.scripts = {
     'audit:public-private': 'powershell -NoProfile -Command "$env:STRICT_PUBLIC_RELEASE=\'1\'; $env:PUBLIC_RELEASE_EXPORT=\'1\'; node ./scripts/audit_public_private_split.cjs"',
-    'audit:public-release-boundary': 'node ./scripts/audit_public_release_boundary.cjs'
+    'audit:public-release-boundary': 'node ./scripts/audit_public_release_boundary.cjs',
+    'audit:public-manifest': 'node ./scripts/verify_public_release_manifest.cjs'
   }
   fs.mkdirSync(path.dirname(targetPath), { recursive: true })
   fs.writeFileSync(targetPath, `${JSON.stringify(body, null, 2)}\n`)
@@ -92,12 +98,19 @@ function copyPublicReleaseFiles({
     ignoredPaths: [],
     artifactBoundary: true
   })
+  writePublicReleaseManifest({
+    repoRoot,
+    targetDir: safeTargetDir
+  })
+  verifyPublicReleaseManifest({
+    targetDir: safeTargetDir
+  })
 
   return {
     repoRoot: path.resolve(repoRoot),
     targetDir: safeTargetDir,
-    copiedFiles: releaseFiles.length,
-    releaseFiles
+    copiedFiles: releaseFiles.length + 1,
+    releaseFiles: [...releaseFiles, MANIFEST_FILE].sort()
   }
 }
 

@@ -2,9 +2,9 @@
 
 BNB BitLadder is a desktop operator app with local wallet custody and server-enforced premium execution planning.
 
-Public distribution is paused while the license/security split is reviewed.
+Public source distribution is allowed only through the audited thin-client export.
 
-This repository currently verifies the public source/export boundary, not a Windows installer artifact. Do not publish an installer or portable archive until the release pipeline proves that the artifact is built from the approved thin-client/public bundle and passes the same boundary checks after packaging.
+This repository verifies the public source/export boundary and writes a hash manifest for the exported artifact. It still does not contain a Windows installer pipeline. Do not publish an installer or portable archive until that packaging pipeline exists and proves that the packaged artifact is built from the approved thin-client bundle and passes the same boundary checks after packaging.
 
 Expected release assets, once the installer pipeline is restored and audited:
 - `BNB.BitLadder.Setup.<version>.exe` - Windows installer.
@@ -54,10 +54,11 @@ npm test
 npm run security:verify
 npm run audit:public-private
 npm run audit:public-release-boundary
+npm run audit:public-manifest
 node ./scripts/export_public_release.cjs --dry-run
 ```
 
-`security:verify` runs tests, dependency audit, strict private/public checks, and copied-artifact boundary checks. The release boundary audit exports into `dist/public-release-audit` and verifies the copied artifact, not just the working tree.
+`security:verify` runs tests, dependency audit, strict private/public checks, copied-artifact boundary checks, and public manifest verification. The release boundary audit exports into `dist/public-release-audit` and verifies the copied artifact, not just the working tree. Every exported public source bundle includes `PUBLIC_RELEASE_MANIFEST.json`; `node ./scripts/verify_public_release_manifest.cjs --target <export-dir>` must pass before publishing.
 
 Installer size and updater behavior must be justified by the audited packaging pipeline, not by assumption. A release is blocked if the packaged artifact contains private planner/runtime files, premium transaction builders, server secrets, or stale dependencies.
 
@@ -76,8 +77,20 @@ The server binds a license to a device identity. The client sends `installId`, `
 Operational policy:
 - one license key is one active bound device unless an admin explicitly resets it;
 - a different device must be rejected as `license key is bound to another device`;
-- nonce replays, repeated wrong-device attempts, and suspicious session churn must be reviewed in server audit logs;
+- signed request timestamps are accepted only within the server skew window;
+- nonce replays, repeated wrong-device attempts, and suspicious session churn must be recorded in sanitized server audit logs;
+- license create/block/reset/delete actions require an issued user identity or an admin reason where appropriate;
 - confirmed abuse is handled by blocking the license key server-side, not by trusting client UI state.
+
+## Anti-Fraud Baseline
+
+The anti-fraud policy is intentionally strict but not heavy for legitimate users:
+
+- one paid license binds to one device identity;
+- support can reset a device only after verifying the customer and recording a reason;
+- refund, chargeback, resale, or public key sharing is handled by server-side block/revoke;
+- normal Pool Search, Manage, monitoring, wallet unlock, and read-only previews do not wait on fraud checks;
+- live premium actions already pass through the server planner, so wrong-device and replay checks run there without adding client friction.
 
 ## Transaction Input Safety
 

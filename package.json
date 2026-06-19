@@ -5,7 +5,8 @@
   "type": "commonjs",
   "scripts": {
     "audit:public-private": "powershell -NoProfile -Command \"$env:STRICT_PUBLIC_RELEASE='1'; $env:PUBLIC_RELEASE_EXPORT='1'; node ./scripts/audit_public_private_split.cjs\"",
-    "audit:public-release-boundary": "node ./scripts/audit_public_release_boundary.cjs"
+    "audit:public-release-boundary": "node ./scripts/audit_public_release_boundary.cjs",
+    "audit:public-manifest": "node ./scripts/verify_public_release_manifest.cjs"
   },
   "devDependencies": {
     "dotenv": "^16.4.7",
