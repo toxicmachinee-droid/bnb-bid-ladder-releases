@@ -4621,9 +4621,9 @@ function renderPositions(openCards) {
         <span>Seen ${formatTimestamp(card.lastSeenAt)}</span>
       </div>
       <div class="position-actions">
-        <button class="position-mini-button" type="button" data-position-action="collect-live" data-position-id="${card.positionId}">Collect</button>
-        <button class="position-mini-button" type="button" data-position-action="close-preview" data-position-id="${card.positionId}">Exit Review</button>
-        <button class="position-mini-button" type="button" data-position-action="close-dry-run" data-position-id="${card.positionId}">Exit Check</button>
+        <button class="position-mini-button" type="button" data-position-action="collect-live" data-position-id="${escapeHtml(card.positionId)}">Collect</button>
+        <button class="position-mini-button" type="button" data-position-action="close-preview" data-position-id="${escapeHtml(card.positionId)}">Exit Review</button>
+        <button class="position-mini-button" type="button" data-position-action="close-dry-run" data-position-id="${escapeHtml(card.positionId)}">Exit Check</button>
       </div>
       ${actionResult ? renderPositionActionResult(actionResult) : ''}
     `
@@ -4885,7 +4885,7 @@ function renderManageOpenTable(openCards) {
       headerRow.className = 'manage-group-row'
       headerRow.innerHTML = `
         <td colspan="11">
-          <button class="manage-group-toggle" type="button" data-manage-group="${group.key}">
+          <button class="manage-group-toggle" type="button" data-manage-group="${escapeHtml(group.key)}">
             <span class="manage-group-caret">${expanded ? '−' : '+'}</span>
             <span class="manage-group-title-block">
               <span class="manage-group-title">${escapeHtml(group.cards[0] ? getPairDisplayLabel(group.cards[0]) : `${group.tokenSymbol || 'TOKEN'}/${group.quoteSymbol || 'QUOTE'}`)}</span>
@@ -4936,7 +4936,7 @@ function renderManageOpenTable(openCards) {
         const pair = getPairDisplayLabel(card)
         const row = document.createElement('tr')
         row.innerHTML = `
-          <td><input class="manage-row-check" type="checkbox" data-manage-select="${key}"${selected ? ' checked' : ''}></td>
+          <td><input class="manage-row-check" type="checkbox" data-manage-select="${escapeHtml(key)}"${selected ? ' checked' : ''}></td>
           <td class="manage-token-cell"><strong>${escapeHtml(pair)}</strong></td>
           <td class="manage-age-cell"><strong>${escapeHtml(openedDisplay.elapsed)}</strong><span>${escapeHtml(openedDisplay.timestamp)}</span></td>
           <td>${formatPct(Number(card.fee || 0) / 10000, 2)}</td>
@@ -4951,9 +4951,9 @@ function renderManageOpenTable(openCards) {
           <td>${buildRangeMeterMarkup(progress, { compact: true })}</td>
           <td>
             <div class="manage-actions">
-              <button class="manage-action-button collect" type="button" data-manage-collect="${key}">Collect</button>
-              <button class="manage-action-button close" type="button" data-position-action="close-live" data-position-id="${key}">Close</button>
-              <button class="manage-action-button autoswap" type="button" data-position-action="close-live-autoswap" data-position-id="${key}">Close + Swap</button>
+              <button class="manage-action-button collect" type="button" data-manage-collect="${escapeHtml(key)}">Collect</button>
+              <button class="manage-action-button close" type="button" data-position-action="close-live" data-position-id="${escapeHtml(key)}">Close</button>
+              <button class="manage-action-button autoswap" type="button" data-position-action="close-live-autoswap" data-position-id="${escapeHtml(key)}">Close + Swap</button>
             </div>
           </td>
         `
@@ -5002,7 +5002,7 @@ function renderManageOpenTable(openCards) {
     const pair = getPairDisplayLabel(card)
     const row = document.createElement('tr')
     row.innerHTML = `
-      <td><input class="manage-row-check" type="checkbox" data-manage-select="${key}"${selected ? ' checked' : ''}></td>
+      <td><input class="manage-row-check" type="checkbox" data-manage-select="${escapeHtml(key)}"${selected ? ' checked' : ''}></td>
       <td class="manage-token-cell"><strong>${escapeHtml(pair)}</strong></td>
       <td class="manage-age-cell"><strong>${escapeHtml(openedDisplay.elapsed)}</strong><span>${escapeHtml(openedDisplay.timestamp)}</span></td>
       <td>${formatPct(Number(card.fee || 0) / 10000, 2)}</td>
@@ -5017,9 +5017,9 @@ function renderManageOpenTable(openCards) {
       <td>${buildRangeMeterMarkup(progress, { compact: true })}</td>
       <td>
         <div class="manage-actions">
-          <button class="manage-action-button collect" type="button" data-manage-collect="${key}">Collect</button>
-          <button class="manage-action-button close" type="button" data-position-action="close-live" data-position-id="${key}">Close</button>
-          <button class="manage-action-button autoswap" type="button" data-position-action="close-live-autoswap" data-position-id="${key}">Close + Swap</button>
+          <button class="manage-action-button collect" type="button" data-manage-collect="${escapeHtml(key)}">Collect</button>
+          <button class="manage-action-button close" type="button" data-position-action="close-live" data-position-id="${escapeHtml(key)}">Close</button>
+          <button class="manage-action-button autoswap" type="button" data-position-action="close-live-autoswap" data-position-id="${escapeHtml(key)}">Close + Swap</button>
         </div>
       </td>
     `
@@ -5050,7 +5050,7 @@ function renderManageClosedTable(closedCards) {
     const exitSwapStatus = formatClosedExitSwapStatus(card)
     const row = document.createElement('tr')
     row.innerHTML = `
-      <td class="manage-token-cell"><strong>${getPairDisplayLabel(card)}</strong></td>
+      <td class="manage-token-cell"><strong>${escapeHtml(getPairDisplayLabel(card))}</strong></td>
       <td>${formatTimestamp(card.closedAt)}</td>
       <td>${formatUsd(card.costBasisQuote || card.deployedQuote || 0)}</td>
       <td class="positive-soft">${formatClosedUsd(card, 'feesQuote')}</td>
@@ -5107,7 +5107,7 @@ function renderManageClosedGroups(closedCards) {
     headerRow.className = 'manage-group-row'
     headerRow.innerHTML = `
       <td colspan="6">
-        <button class="manage-group-toggle" type="button" data-closed-group="${group.key}">
+        <button class="manage-group-toggle" type="button" data-closed-group="${escapeHtml(group.key)}">
           <span class="manage-group-caret">${expanded ? '−' : '+'}</span>
           <span class="manage-group-title-block">
             <span class="manage-group-title">${escapeHtml(pairLabel)}</span>
@@ -5219,15 +5219,15 @@ function renderActivity(execution) {
 
 function renderPositionActionResult(result) {
   if (result.kind === 'error') {
-    return `<div class="position-inline-result">${result.error}</div>`
+    return `<div class="position-inline-result">${escapeHtml(result.error)}</div>`
   }
 
   if (result.kind === 'close-preview') {
     return `
       <div class="position-inline-result">
-        <div class="row"><span>Exit Review</span><strong>${result.tokenId}</strong></div>
+        <div class="row"><span>Exit Review</span><strong>${escapeHtml(result.tokenId)}</strong></div>
         <div class="row"><span>Liquidity</span><strong>${formatCompact(result.liquidity)}</strong></div>
-        <div class="row"><span>Range</span><strong>${result.tickLower} .. ${result.tickUpper}</strong></div>
+        <div class="row"><span>Range</span><strong>${escapeHtml(result.tickLower)} .. ${escapeHtml(result.tickUpper)}</strong></div>
       </div>
     `
   }
@@ -6300,7 +6300,7 @@ function renderPositionSetupPanel(card) {
       </div>
     `
   } else if (state.setupExecutionResult?.kind === 'error') {
-    executionBox = `<div class="setup-warning">${state.setupExecutionResult.error}</div>`
+    executionBox = `<div class="setup-warning">${escapeHtml(state.setupExecutionResult.error)}</div>`
   }
 
   const activeRunner = state.liveRunner.targetRun || state.liveRunner.activeRun
@@ -6344,13 +6344,13 @@ function renderPositionSetupPanel(card) {
       <label class="builder-field builder-field-wide">
         <span>Capital (${depositSideLabel})</span>
         <input id="setup-capital-usd" type="number" min="0" step="any" value="${escapeHtml(getSetupRangeInputDisplayValue('setup-capital-usd', capitalInputValue))}">
-        ${capitalHelper ? `<small>${capitalHelper}</small>` : ''}
+        ${capitalHelper ? `<small>${escapeHtml(capitalHelper)}</small>` : ''}
       </label>
       <label class="builder-field builder-field-compact">
         <span>Deposit Side</span>
         <select id="setup-deposit-token">
-          <option value="quote"${setup.depositToken === 'quote' ? ' selected' : ''}>${card.quoteTokenSymbol || 'QUOTE'}</option>
-          <option value="base"${setup.depositToken === 'base' ? ' selected' : ''}>${card.tokenSymbol || 'BASE'}</option>
+          <option value="quote"${setup.depositToken === 'quote' ? ' selected' : ''}>${escapeHtml(card.quoteTokenSymbol || 'QUOTE')}</option>
+          <option value="base"${setup.depositToken === 'base' ? ' selected' : ''}>${escapeHtml(card.tokenSymbol || 'BASE')}</option>
         </select>
       </label>
       <label class="builder-field builder-field-tight">
@@ -6559,7 +6559,7 @@ function renderPositionSetupPanel(card) {
                   <span class="hero-status-pill${readinessClass}" data-setup-readiness-label>${readinessLabel}</span>
                 </div>
               </div>
-              <p>Selected pool on ${card.dexLabel || card.dex}. Fee tier ${card.feeTierLabel}. Build the entry and open from one compact workspace.</p>
+              <p>Selected pool on ${escapeHtml(card.dexLabel || card.dex)}. Fee tier ${escapeHtml(card.feeTierLabel)}. Build the entry and open from one compact workspace.</p>
             </div>
           </div>
           <div class="create-hero-facts-grid">
@@ -6658,14 +6658,14 @@ function renderPositionSetupPanel(card) {
                 <h3>Quick Preview</h3>
                 <p>Compact live summary of the current setup before the final open action.</p>
               </div>
-              <div class="create-card-chip" data-setup-slots-chip>${preview.mode === 'bidask' ? `${preview.positions || 0} ladder slots` : 'spot route'}</div>
+              <div class="create-card-chip" data-setup-slots-chip>${escapeHtml(preview.mode === 'bidask' ? `${preview.positions || 0} ladder slots` : 'spot route')}</div>
             </div>
             <div class="create-preview-summary create-preview-summary-compact">
               <div class="row"><span>Total Capital</span><strong class="preview-emphasis" data-setup-total-capital>${formatUsd(preview.summary.totalCapitalUsd)}</strong></div>
               <div class="row"><span>${preview.mode === 'bidask' ? 'Auto Positions' : 'Estimated Units'}</span><strong data-setup-auto-positions>${preview.mode === 'bidask' ? preview.positions : formatNumber(preview.summary.estimatedUnits, 4)}</strong></div>
               ${preview.mode === 'bidask' ? `<div class="row"><span>Executable Ticks</span><strong data-setup-executable-status>${state.setupExecutablePreview?.key === setupExecutablePreviewKey && state.setupExecutablePreview.status === 'ready' ? 'Snapped' : state.setupExecutablePreview?.key === setupExecutablePreviewKey && state.setupExecutablePreview.status === 'error' ? 'Unavailable' : 'Checking'}</strong></div>` : ''}
-              <div class="row"><span>Fee Tier</span><strong class="preview-accent">${card.feeTierLabel}</strong></div>
-              <div class="row"><span>Deposit Side</span><strong data-setup-spot-deposit-usage>${preview.mode === 'spot' ? escapeHtml(spotDepositUsageLabel) : depositSideLabel}</strong></div>
+              <div class="row"><span>Fee Tier</span><strong class="preview-accent">${escapeHtml(card.feeTierLabel)}</strong></div>
+              <div class="row"><span>Deposit Side</span><strong data-setup-spot-deposit-usage>${preview.mode === 'spot' ? escapeHtml(spotDepositUsageLabel) : escapeHtml(depositSideLabel)}</strong></div>
               <div class="row"><span>Max Drawdown</span><strong class="preview-danger setup-loss-stack summary-drawdown-stack" data-setup-drawdown><span>${formatPct(preview.summary.worstLossPct)}</span><span data-setup-loss-usd>${formatSetupLossUsd(preview.summary.worstLossPct, preview.summary.totalCapitalUsd)}</span></strong></div>
               <div class="row"><span>Slippage</span><strong class="preview-accent">${formatPct(setup.slippagePct || 0)}</strong></div>
             </div>
@@ -6678,7 +6678,7 @@ function renderPositionSetupPanel(card) {
                 <h3>Open Position</h3>
                 <p>Single production action. The button stays guarded by range validity, price checks and keystore readiness.</p>
               </div>
-              <div class="create-action-status${readinessClass}" data-setup-readiness-label>${readinessLabel}</div>
+            <div class="create-action-status${readinessClass}" data-setup-readiness-label>${escapeHtml(readinessLabel)}</div>
             </div>
             <div class="create-action-summary">
               <div class="row"><span>Route</span><strong>${setup.mode === 'bidask' ? 'Bid / Ask Ladder' : 'Spot Entry'}</strong></div>
@@ -7500,33 +7500,46 @@ function getSignalDescriptor(index, total) {
   return { signalClass: 'worst', signalLabel: 'Worst fee/tvl' }
 }
 
+function safeExternalUrl(value, allowedHosts = []) {
+  try {
+    const url = new URL(String(value || '').trim())
+    if (url.protocol !== 'https:') return ''
+    const host = url.hostname.toLowerCase()
+    return allowedHosts.some((allowedHost) => host === allowedHost || host.endsWith(`.${allowedHost}`))
+      ? url.toString()
+      : ''
+  } catch {
+    return ''
+  }
+}
+
 function buildSwapUrl(card) {
   if (!card?.pairAddress) {
     return '#'
   }
 
   if (card.dex === 'pancakeswap') {
-    return `https://pancakeswap.finance/liquidity/pool/bsc/${card.pairAddress}`
+    return `https://pancakeswap.finance/liquidity/pool/bsc/${encodeURIComponent(card.pairAddress)}`
   }
 
   if (card.dex === 'uniswap') {
-    return `https://app.uniswap.org/explore/pools/bnb/${card.pairAddress}`
+    return `https://app.uniswap.org/explore/pools/bnb/${encodeURIComponent(card.pairAddress)}`
   }
 
   if (card.dex === 'thena') {
-    return card.dexUrl || `https://app.thena.fi/liquidity/pool/${card.pairAddress}`
+    return safeExternalUrl(card.dexUrl, ['thena.fi']) || `https://app.thena.fi/liquidity/pool/${encodeURIComponent(card.pairAddress)}`
   }
 
   if (card.dex === 'sushiswap') {
-    return card.dexUrl || `https://www.sushi.com/bnb/pool/${card.pairAddress}`
+    return safeExternalUrl(card.dexUrl, ['sushi.com']) || `https://www.sushi.com/bnb/pool/${encodeURIComponent(card.pairAddress)}`
   }
 
-  return card.dexUrl || '#'
+  return safeExternalUrl(card.dexUrl, ['pancakeswap.finance', 'uniswap.org', 'thena.fi', 'sushi.com']) || '#'
 }
 
 function buildDexScreenerUrl(card) {
-  const explicit = String(card?.dexUrl || '').trim()
-  if (/^https:\/\/dexscreener\.com\//i.test(explicit)) {
+  const explicit = safeExternalUrl(card?.dexUrl, ['dexscreener.com'])
+  if (explicit) {
     return explicit
   }
 
@@ -7534,7 +7547,7 @@ function buildDexScreenerUrl(card) {
     return '#'
   }
 
-  return `https://dexscreener.com/bsc/${card.pairAddress}`
+  return `https://dexscreener.com/bsc/${encodeURIComponent(card.pairAddress)}`
 }
 
 function buildDefinedPoolUrl(card) {
@@ -7542,7 +7555,7 @@ function buildDefinedPoolUrl(card) {
     return '#'
   }
 
-  return `https://www.defined.fi/bsc/${card.pairAddress}`
+  return `https://www.defined.fi/bsc/${encodeURIComponent(card.pairAddress)}`
 }
 
 function closeLinkContextMenu() {
@@ -8911,7 +8924,7 @@ function renderClosedPositions(closedCards) {
       <div class="position-head">
         <button type="button" class="position-head-toggle" data-sidebar-closed-group="${group.key}">
           <div>
-            <h4>${pairLabel}</h4>
+            <h4>${escapeHtml(pairLabel)}</h4>
             <p class="position-subline">${escapeHtml(`${group.cards.length} closed positions · ${group.quoteSymbol || 'USDT'} · ${formatTimestamp(group.closedAt)}`)}</p>
           </div>
           <span class="position-status closed">${expanded ? 'Collapse' : 'Closed'}</span>
@@ -8926,7 +8939,7 @@ function renderClosedPositions(closedCards) {
         <div class="position-metrics compact">
           ${group.cards.map((card) => `
             <div class="position-metric">
-              <span>#${card.tokenId || card.positionId}</span>
+              <span>#${escapeHtml(card.tokenId || card.positionId)}</span>
               <strong class="${Number(card.realizedPnlQuote || 0) >= 0 ? 'positive' : 'negative'}">${formatClosedUsd(card, 'realizedPnlQuote', { signed: true })}</strong>
             </div>
           `).join('')}

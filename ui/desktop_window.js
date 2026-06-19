@@ -1,5 +1,14 @@
 'use strict'
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+}
+
 async function setupDesktopWindowChrome(attempt = 0) {
   if (!window.desktopWindow) {
     if (attempt < 40) {
@@ -20,7 +29,7 @@ async function setupDesktopWindowChrome(attempt = 0) {
     ? String(await window.desktopWindow.appVersion().catch(() => '') || '').trim()
     : String(window.desktopWindow.appVersion || '').trim()
   const versionBadge = appVersion
-    ? `<span class="desktop-titlebar-version">v${appVersion}</span>`
+    ? `<span class="desktop-titlebar-version">v${escapeHtml(appVersion)}</span>`
     : ''
   titlebar.innerHTML = `
     <div class="desktop-titlebar-brand">

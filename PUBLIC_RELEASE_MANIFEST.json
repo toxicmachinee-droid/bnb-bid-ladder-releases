@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-19T23:26:50.280Z",
-  "sourceCommit": "386b7489f7bc054309ea1e8f4559f65fea23a013",
+  "generatedAt": "2026-06-19T23:34:14.509Z",
+  "sourceCommit": "35f0d86ce0db5d85a34ee00261c3f68906a45870",
   "sourceBranch": "main",
   "fileCount": 110,
   "files": [
@@ -517,8 +517,8 @@
     },
     {
       "path": "ui/desktop_window.js",
-      "bytes": 2233,
-      "sha256": "e6440eacf0dcdfd1b73101ff9e396c91a59fcd45228167d7dc503031f48fbc8e"
+      "bytes": 2454,
+      "sha256": "515fa1e53d6f1d7604e7b0a6f982e299d347a0ef2d4859d4f3f31c8686447c31"
     },
     {
       "path": "ui/license_gate.css",
@@ -547,8 +547,8 @@
     },
     {
       "path": "ui/operator_shell.js",
-      "bytes": 356584,
-      "sha256": "aff18a551f0162e6b31280652201ecbd2e7ad8c2df085c05c566cfe112a4b756"
+      "bytes": 357491,
+      "sha256": "7b04066134d5c067ae6319a987537408ad279b4de8068586143867688c22bdd2"
     },
     {
       "path": "ui/position_setup_shared.js",
