@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-20T01:59:32.575Z",
-  "sourceCommit": "a98977cf98ae002e07afcd357bb75367038e9cbe",
+  "generatedAt": "2026-06-20T03:50:49.620Z",
+  "sourceCommit": "17820bfd9461e302225d762e6f339e707e8f08f6",
   "sourceBranch": "main",
-  "fileCount": 111,
+  "fileCount": 112,
   "files": [
     {
       "path": ".gitignore",
@@ -267,8 +267,8 @@
     },
     {
       "path": "lib/operator/pool_browser.cjs",
-      "bytes": 16541,
-      "sha256": "04824cc2c8432595f245b6bd7f6b0a6324aa062848b61544cad0b5ac4974a3b5"
+      "bytes": 16666,
+      "sha256": "9dc880811d523a572ecda12d61c5d4e28a51dc62fcf2702c7387ef3c947e2809"
     },
     {
       "path": "lib/operator/pool_identity.cjs",
@@ -416,9 +416,14 @@
       "sha256": "208a931a142f4b5e2c3c996d9c26bed24c8464f135a715a09addcdedabb04287"
     },
     {
+      "path": "lib/public_operator_state/runtime.cjs",
+      "bytes": 1817,
+      "sha256": "f88f90f75ed45a845009bcfb692355cb8895068d7d8138271ccdfc10821c3624"
+    },
+    {
       "path": "lib/public_pool_search/runtime.cjs",
-      "bytes": 6403,
-      "sha256": "4b059801856381b36d2375d840a350d9bf43dc545ed3abe3fd0df7fdc5e16f43"
+      "bytes": 16457,
+      "sha256": "e94ca877cc6f756db328cdacbe7efd429c76fb37c93ad39a8574cee3a297a51c"
     },
     {
       "path": "lib/security/keystore.cjs",
