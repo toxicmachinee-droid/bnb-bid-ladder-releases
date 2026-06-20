@@ -25,12 +25,15 @@ Premium live actions use a thin-client flow:
 
 Read-only UI and local state must stay fast and local. Live premium execution may make one planner request after the user starts execution/review; if the planner is unavailable or the plan fails verification, the app fails closed with a clear retry state. It must never silently fall back to local premium transaction building.
 
+Pool Search in public builds must use only audited read-only modules. It may call public market APIs or the user's configured local RPC from the user's machine, so one customer's searches do not consume the operator's license/planner server limits. It must not import premium execution modules or build executable calldata.
+
 ## Public Source Boundary
 
 The public/exported source exists so users can verify wallet safety and client-side plan verification. It is not a place to ship premium transaction planning algorithms.
 
 Allowed in public/exported source:
 - UI, static assets, and read-only client code;
+- audited read-only Pool Search code in `lib/public_pool_search/*`;
 - local encrypted keystore and local signing flow;
 - device/session client code;
 - signed-plan verification and execution runner;

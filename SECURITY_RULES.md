@@ -13,6 +13,7 @@ These rules are mandatory for every release, hotfix, and local change that touch
 - Never publish a desktop installer, portable archive, or updater payload unless the packaged artifact itself is audited against the public/private boundary.
 - Never publish a public source/export bundle without a valid `PUBLIC_RELEASE_MANIFEST.json` and passing manifest verification.
 - Never process chain/RPC/transaction data as trusted input; calldata, receipts, token metadata, logs, symbols, URLs, and pool fields must be validated before storage, display, or planner use.
+- Never let public Pool Search import premium execution modules. Public Pool Search must stay in audited read-only modules such as `lib/public_pool_search/runtime.cjs`.
 
 ## Required Premium Flow
 
@@ -30,6 +31,7 @@ If any step fails, the action fails closed with a clear error. It must not gener
 ## UX Constraints
 
 - Pool Search, filters, Manage, local state, monitoring, wallet import/unlock, and read-only previews stay local and responsive.
+- Public Pool Search may use user-side market/API/RPC access, so user traffic consumes the user's own local/network limits rather than the license server's limits.
 - License heartbeat and planner health warm asynchronously after startup.
 - A live premium planner request happens only when the user starts execution/review.
 - Planner p95 should stay under 1 second in normal operation.

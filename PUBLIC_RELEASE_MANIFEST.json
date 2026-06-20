@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-19T23:34:14.509Z",
-  "sourceCommit": "35f0d86ce0db5d85a34ee00261c3f68906a45870",
+  "generatedAt": "2026-06-20T01:59:32.575Z",
+  "sourceCommit": "a98977cf98ae002e07afcd357bb75367038e9cbe",
   "sourceBranch": "main",
-  "fileCount": 110,
+  "fileCount": 111,
   "files": [
     {
       "path": ".gitignore",
@@ -12,13 +12,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 6783,
-      "sha256": "476593ae5f61c4b358c2a06e5c63ad5bc884f2d5482aebd559b809360b10f2f7"
+      "bytes": 7172,
+      "sha256": "543bcdb25ff628bc4f6b119754d1223eddec21b801bf3afa52db103fe57ba1f4"
     },
     {
       "path": "SECURITY_RULES.md",
-      "bytes": 7916,
-      "sha256": "916e8d8dc4c06e96740325a98c9aa68f6505e4be5e8888c6d9d427f997fa5a4a"
+      "bytes": 8244,
+      "sha256": "9fc50fda70dc7f9ee44067cebe7233813cb0f8e4108371127ea19f0916a8b502"
     },
     {
       "path": "config/canary_limits.example.json",
@@ -414,6 +414,11 @@
       "path": "lib/protocol/v4_math.cjs",
       "bytes": 6056,
       "sha256": "208a931a142f4b5e2c3c996d9c26bed24c8464f135a715a09addcdedabb04287"
+    },
+    {
+      "path": "lib/public_pool_search/runtime.cjs",
+      "bytes": 6403,
+      "sha256": "4b059801856381b36d2375d840a350d9bf43dc545ed3abe3fd0df7fdc5e16f43"
     },
     {
       "path": "lib/security/keystore.cjs",
